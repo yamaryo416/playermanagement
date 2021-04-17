@@ -14,31 +14,30 @@ import { GET_MY_TRAININGS } from "../../../queries"
 import { scheduleCreateModalState } from "../../../store/scheduleCreateModalState"
 import { MyTrainingsType } from "../../../types/queriesType"
 
-export const ScheduleCreateModal:VFC = memo(() => {
-    const { isCreateSingleSchedule,
-            trainingSchedule,
-            setTrainingSchedule,
-            date,
-            startDate,
-            endDate,
-            onClickChangeMode,
-            onChangeTrainingSchedule,
-            onChangeDate,
-            onChangeStartDate,
-            onChangeEndDate,
-            onChangeDayOfWeek,
-            includeWeekDays,
-            createSingleSchedule,
-            createManySchedules
-         } = useSchedule()
+type Props = {
+    dataMyTrainings: MyTrainingsType | undefined;
+}
 
-    const [scheduleCreateModal, setScheduleCreateModal] = useRecoilState(scheduleCreateModalState)
-
-    const [getMyTrainingsQuery, { loading: loadingMyTrainings, data: dataMyTrainings, error: errorMyTrainings }] = useLazyQuery<MyTrainingsType>(GET_MY_TRAININGS, {
-        fetchPolicy: "cache-and-network",
-    })
-
-    const onCloseScheduleCreateModal = () => setScheduleCreateModal(false)
+export const ScheduleCreateModal:VFC<Props> = memo((props) => {
+    const { dataMyTrainings } = props
+    const { 
+        isCreateSingleSchedule,
+        trainingSchedule,
+        date,
+        startDate,
+        endDate,
+        scheduleCreateModal,
+        onClickChangeMode,
+        onChangeTrainingSchedule,
+        onChangeDate,
+        onChangeStartDate,
+        onChangeEndDate,
+        onChangeDayOfWeek,
+        onCloseScheduleCreateModal,
+        includeWeekDays,
+        createSingleSchedule,
+        createManySchedules
+    } = useSchedule()
 
     const selectTraining = dataMyTrainings?.myTrainings.edges?.map((train) => (
         <option key={train.node.id} value={train.node.id}>
@@ -54,14 +53,6 @@ export const ScheduleCreateModal:VFC = memo(() => {
             </Box>
         </Flex>
     ))
-
-    useEffect(() => {
-        const getMyTrainings = async () => {
-            await getMyTrainingsQuery()
-        }
-        getMyTrainings()
-    
-    }, [scheduleCreateModal])
  
     return (
         <Modal
@@ -70,59 +61,55 @@ export const ScheduleCreateModal:VFC = memo(() => {
             autoFocus={false}
         >
             <ModalOverlay/>
-            <ModalContent>
+            <ModalContent color="black">
                 <ModalHeader textAlign="center">スケジュール作成{isCreateSingleSchedule ? "(一日のみ)" : "(期間指定)" }</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {loadingMyTrainings ? (
-                        <Text>Loading...</Text>
-                    ) : (
-                        <form onSubmit={(e) => {
-                            e.preventDefault()
-                            if (isCreateSingleSchedule) {
-                                createSingleSchedule()
-                            } else {
-                                createManySchedules()
-                            }     
-                        }}>
-                            <Stack spacing={4}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault()
+                        if (isCreateSingleSchedule) {
+                            createSingleSchedule()
+                        } else {
+                            createManySchedules()
+                        }     
+                    }}>
+                        <Stack spacing={4}>
+                            <FormControl>
+                                <FormLabel>トレーニング</FormLabel>
+
+                            </FormControl>
+                            <Select
+                                value={trainingSchedule}
+                                onChange={onChangeTrainingSchedule}
+                            >
+                                <option value="">トレーニングを選択してください。</option>
+                                {selectTraining}
+                            </Select>
+                            {isCreateSingleSchedule ? (
                                 <FormControl>
-                                    <FormLabel>トレーニング</FormLabel>
-
+                                    <FormLabel>日付</FormLabel>
+                                    <Input type="date" value={date} onChange={onChangeDate} />
                                 </FormControl>
-                                <Select
-                                    value={trainingSchedule}
-                                    onChange={onChangeTrainingSchedule}
-                                >
-                                    <option value="">トレーニングを選択してください。</option>
-                                    {selectTraining}
-                                </Select>
-                                {isCreateSingleSchedule ? (
+                            ) : (
+                                <> 
                                     <FormControl>
-                                        <FormLabel>日付</FormLabel>
-                                        <Input type="date" value={date} onChange={onChangeDate} />
+                                        <FormLabel>開始日</FormLabel>
+                                        <Input type="date" value={startDate} onChange={onChangeStartDate} />
                                     </FormControl>
-                                ) : (
-                                    <> 
-                                        <FormControl>
-                                            <FormLabel>開始日</FormLabel>
-                                            <Input type="date" value={startDate} onChange={onChangeStartDate} />
-                                        </FormControl>
-                                        <FormControl>
-                                            <FormLabel>終了日</FormLabel>
-                                            <Input type="date" value={endDate} onChange={onChangeEndDate} />
-                                        </FormControl>
+                                    <FormControl>
+                                        <FormLabel>終了日</FormLabel>
+                                        <Input type="date" value={endDate} onChange={onChangeEndDate} />
+                                    </FormControl>
 
-                                        <Text>曜日指定</Text>
-                                        <Flex>
-                                            {selectWeekDay}
-                                        </Flex>
-                                    </>
-                                )}
-                                <Button type="submit">スケジュールを作成する</Button>
-                            </Stack>
-                        </form>
-                    )}
+                                    <Text>曜日指定</Text>
+                                    <Flex>
+                                        {selectWeekDay}
+                                    </Flex>
+                                </>
+                            )}
+                            <Button type="submit">スケジュールを作成する</Button>
+                        </Stack>
+                    </form>
                 </ModalBody> 
                 <ModalFooter px={4} justifyContent="space-between">
                     <Link onClick={onClickChangeMode}>{isCreateSingleSchedule ? "期間指定に切り替える" : "一日のみに切り替える"}</Link>

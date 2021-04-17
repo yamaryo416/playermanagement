@@ -1,8 +1,10 @@
 import { useMutation } from "@apollo/client"
 import moment from "moment"
 import { ChangeEvent, useState } from "react"
+import { useRecoilState } from "recoil"
 import { TODAY } from "../constants"
 import { CREATE_MANY_SCHEDULES, CREATE_SINGLE_SCHEDULE, GET_MY_ALL_SCHEDULES } from "../queries"
+import { scheduleCreateModalState } from "../store/scheduleCreateModalState"
 import { useMessage } from "./useMessage"
 
 export const useSchedule = () => {
@@ -12,6 +14,7 @@ export const useSchedule = () => {
     const [startDate, setStartDate] = useState(TODAY)
     const [endDate, setEndDate] = useState(TODAY)
     const [dayOfWeek, setDayOfWeek] = useState("0123456")
+    const [scheduleCreateModal, setScheduleCreateModal] = useRecoilState(scheduleCreateModalState)
 
     const [createSingleScheduleMutation] = useMutation(CREATE_SINGLE_SCHEDULE,{
         refetchQueries: [{ query: GET_MY_ALL_SCHEDULES }]
@@ -32,6 +35,8 @@ export const useSchedule = () => {
         const day = Number(e.target.value)
         includeWeekDays(day) ? setDayOfWeek(dayOfWeek.replace(day.toString(), "")) : setDayOfWeek(dayOfWeek + day.toString())
     }
+    const onOpenScheduleCreateModal = () => setScheduleCreateModal(true)
+    const onCloseScheduleCreateModal = () => setScheduleCreateModal(false)
 
     const createSingleSchedule = async () => {
         try {
@@ -64,6 +69,7 @@ export const useSchedule = () => {
         endDate,
         dayOfWeek,
         setDayOfWeek,
+        scheduleCreateModal,
         includeWeekDays,
         onClickChangeMode,
         onChangeTrainingSchedule,
@@ -71,6 +77,8 @@ export const useSchedule = () => {
         onChangeStartDate,
         onChangeEndDate,
         onChangeDayOfWeek,
+        onOpenScheduleCreateModal,
+        onCloseScheduleCreateModal,
         createSingleSchedule,
         createManySchedules
     })

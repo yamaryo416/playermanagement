@@ -4,10 +4,11 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import { useUser } from '../../hooks/useUser';
 import { HeaderLayout } from '../organisms/layout/HeaderLayout'
+import { Menu } from '@material-ui/icons';
 
 type Props = {
-    nickname: string;
-    teamname: string;
+    nickname: string | undefined;
+    teamname: string | undefined;
 }
 
 export const HeaderForAuthUser: VFC<Props> = memo((props) => {
@@ -17,8 +18,8 @@ export const HeaderForAuthUser: VFC<Props> = memo((props) => {
 
     return (
         <HeaderLayout>
-            <Heading as="h3">所属チーム: {teamname} </Heading>
-            <Heading as="h4">ニックネーム: {nickname}</Heading>
+            <Heading as="h3">{teamname}</Heading>
+            <Heading as="h4">{nickname}</Heading>
             <Box onClick={logout}>
                 ログアウト
                 <ExitToAppIcon />

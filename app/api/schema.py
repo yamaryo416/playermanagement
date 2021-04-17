@@ -6,7 +6,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene import relay
 from graphql_jwt.decorators import login_required, user_passes_test
 from graphql_relay import from_global_id
-from .models import CustomUser, Profile, Team, Training, Schedule
+from .models import CustomUser, Profile, Team, TeamBoard, Training, Schedule, Post
 
 class UserNode(DjangoObjectType):
     class Meta:
@@ -34,6 +34,14 @@ class TeamNode(DjangoObjectType):
         }
         interfaces = (relay.Node,)
 
+class TeamBoardNode(DjangoObjectType):
+    class Meta:
+        model = TeamBoard
+        filter_fields = {
+            'team__id': ['exact'],
+        }
+        interfaces = (relay.Node,)
+
 class TrainingNode(DjangoObjectType):
     class Meta:
         model = Training
@@ -50,6 +58,13 @@ class ScheduleNode(DjangoObjectType):
         }
         interfaces = (relay.Node,)
 
+class PostNode(DjangoObjectType):
+    class Meta:
+        model = Post
+        filter_fields = {
+            'team_board_post_id': ['exact'],
+        }
+        interfaces = (relay.Node,)
 
 class CreateUserMutation(relay.ClientIDMutation):
     class Input:
@@ -78,7 +93,7 @@ class CreateProfileMutation(relay.ClientIDMutation):
         nickname = '名無し' if input.get('nickname') == '' else input.get('nickname')
         profile = Profile(
             nickname=nickname,
-            user_prof_id=info.context.user.id
+            user_prof=info.context.user
         )
         profile.save()
 
@@ -119,8 +134,28 @@ class CreateTeamMutation(relay.ClientIDMutation):
             password=input.get('password')
         )
         team.save()
+        team_board = TeamBoard(
+            team=team,
+            coach_id=info.context.user.profile.id
+        )
+        team_board.save()
 
         return CreateTeamMutation(team=team)
+
+class UpdateTeamBoardMutation(relay.ClientIDMutation):
+    class Input:
+        introduction = graphene.String(required=True)
+
+    team_board = graphene.Field(TeamBoardNode)
+
+    @login_required
+    @user_passes_test(lambda use: use.profile.is_coach)
+    def mutate_and_get_payload(root, info, **input):
+        team_board = TeamBoard.objects.get(id=info.context.user.profile.team_prof.team_board.id)
+        team_board.introduction = input.get("introduction")
+        team_board.save()
+
+        return UpdateTeamBoardMutation(team_board=team_board)
 
 class CreateTrainingMutation(relay.ClientIDMutation):
     class Input:
@@ -128,6 +163,7 @@ class CreateTrainingMutation(relay.ClientIDMutation):
         count = graphene.Int()
         distance = graphene.Int()
         description = graphene.String()
+        icon_number =  graphene.Int()
 
     training = graphene.Field(TrainingNode)
 
@@ -143,11 +179,13 @@ class CreateTrainingMutation(relay.ClientIDMutation):
             training.count = input.get('count')
         if input.get('distance') != 0:
             training.distance = input.get('distance')
+        if input.get('icon_number') != 0:
+            training.icon_number = input.get('icon_number')
         training.save()
 
         return CreateTrainingMutation(training=training)
 
-class UpdateTrainingMutation(relay.ClientIDMutation):
+class UpdateTrainingContentMutation(relay.ClientIDMutation):
     class Input:
         id = graphene.ID(required=True)
         title = graphene.String(required=True)
@@ -167,7 +205,29 @@ class UpdateTrainingMutation(relay.ClientIDMutation):
         training.description = input.get('description')
         training.save()
 
-        return UpdateTrainingMutation(training=training)
+        return UpdateTrainingContentMutation(training=training)
+
+class UpdateTrainingNiceMutation(relay.ClientIDMutation):
+    class Input:
+        id = graphene.ID(required=True)
+        user_id = graphene.String(required=True)
+
+    training = graphene.Field(TrainingNode)
+
+    @login_required
+    def mutate_and_get_payload(root, info, **input):
+        training = Training.objects.get(id=from_global_id(input.get('id'))[1])
+        user = input.get("user_id")
+        if user in training.nice_user:
+            users = training.nice_user.replace("/" + user, '')
+            training.nice_count -= 1
+        else:
+            users = '{}/{}'.format(training.nice_user, user)
+            training.nice_count += 1
+        training.nice_user = users
+        training.save()
+
+        return UpdateTrainingNiceMutation(training=training)
 
 class CreateScheduleMutation(relay.ClientIDMutation):
     class Input:
@@ -208,14 +268,14 @@ class CreateManySchedulesMutation(relay.ClientIDMutation):
         while start <= end:
             if str(start.weekday()) in day_of_week:
                 schedule = Schedule(
-                    team_schedule_id=info.context.user.profile.team_prof.id,
+                    team_schedule=info.context.user.profile.team_prof,
                     date=start
                 )
                 schedule.training_schedule = training_schedule
                 schedule.save()
             start += datetime.timedelta(days=1)
         schedule = Schedule(
-            team_schedule_id=info.context.user.profile.team_prof.id,
+            team_schedule=info.context.user.profile.team_prof,
             date=datetime.date(2000, 1, 1)
         )
         schedule.training_schedule = training_schedule
@@ -223,15 +283,36 @@ class CreateManySchedulesMutation(relay.ClientIDMutation):
 
         return CreateManySchedulesMutation(schedule=schedule)
 
+class CreatePostMutation(relay.ClientIDMutation):
+    class Input:
+        text = graphene.String(required=True)
+
+    post = graphene.Field(PostNode)
+
+    @login_required
+    def mutate_and_get_payload(root, info, **input):
+        text = input.get("text")
+        post = Post(
+            text=text,
+            team_board_post=info.context.user.profile.team_prof.team_board,
+            profile_post=info.context.user.profile
+        )
+        post.save()
+
+        return CreatePostMutation(post=post)
+
 class Mutation(graphene.AbstractType):
     create_user = CreateUserMutation.Field()
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     create_profile = CreateProfileMutation.Field()
     update_profile = UpdatProfileMutation.Field()
     create_team = CreateTeamMutation.Field()
+    update_team_board = UpdateTeamBoardMutation.Field()
     create_training = CreateTrainingMutation.Field()
+    update_training_nice = UpdateTrainingNiceMutation.Field()
     create_schedule = CreateScheduleMutation.Field()
     create_many_schedules = CreateManySchedulesMutation.Field()
+    create_post = CreatePostMutation.Field()
     
 class Query(graphene.ObjectType):
     profile = graphene.Field(ProfileNode)
@@ -245,8 +326,9 @@ class Query(graphene.ObjectType):
     training = graphene.Field(TrainingNode,
                               id=graphene.NonNull(graphene.ID))
     all_users = DjangoFilterConnectionField(UserNode)
-    all_profiles =DjangoFilterConnectionField(ProfileNode)
+    all_profiles = DjangoFilterConnectionField(ProfileNode)
     all_team = DjangoFilterConnectionField(TeamNode)
+    my_team_posts = DjangoFilterConnectionField(PostNode)
 
     @login_required
     def resolve_profile(self, info, **kwargs):
@@ -261,7 +343,7 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_my_trainings(self, info, **kwargs):
-        return Training.objects.filter(team_training=info.context.user.profile.team_prof)
+        return Training.objects.filter(team_training=info.context.user.profile.team_prof).order_by('-created_at')
 
     @login_required
     def resolve_my_all_schedules(self, info, **kwargs):
@@ -288,6 +370,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_all_team(self, info, **kwargs):
         return Team.objects.all()
+
+    @login_required
+    def resolve_my_team_posts(self, info, **kwargs):
+        return Post.objects.filter(team_board_post=info.context.user.profile.team_prof.team_board).order_by('-created_at')
 
 
 

@@ -18,6 +18,12 @@ export type MyProfileType = {
     };
     teamProf: {
       name: Scalars['String'];
+      teamBoard: {
+        introduction: Scalars["String"];
+        coach: {
+          nickname: Scalars['String'];
+        }
+      };
     };
     isCoach: Scalars['Boolean'];
   }
@@ -40,6 +46,12 @@ type TrainingType = {
     node: {
         id: Scalars['ID'];
         title: Scalars['String'];
+        count: Scalars['Int'];
+        distance: Scalars['Int'];
+        description: Scalars['String'];
+        iconNumber: Scalars['Int']
+        niceCount: Scalars['Int'];
+        niceUser: Scalars['String'];
     };
   };
 
@@ -47,12 +59,23 @@ export type ScheduleType = {
     node: {
       date: Scalars['Date'];
       trainingSchedule: {
+        id: Scalars['ID'];
         title: Scalars['String'];
         count: Scalars['Int'];
         distance: Scalars['Int'];
         description: Scalars['String'];
+        iconNumber: Scalars['Int'];
       };
     };
+  }
+
+  export type SingleTrainingType = {
+    training: {
+      title: Scalars['String'];
+      count: Scalars['Int'];
+      distance: Scalars['Int'];
+      description: Scalars['String'];
+    }
   }
 
   export type MyTrainingsType = {
@@ -70,5 +93,21 @@ export type ScheduleType = {
   export type MyAllSchedulesType = {
     myAllSchedules: {
       edges: Maybe<Array<ScheduleType>>;
+    }
+  }
+
+  type PostType = {
+    node: {
+      text: Scalars['String'];
+      profilePost: {
+        id: Scalars["ID"];
+        nickname: Scalars['String'];
+      };
+    }
+  }
+
+  export type MyTeamPostsType = {
+    myTeamPosts: {
+      edges: Maybe<Array<PostType>>;
     }
   }

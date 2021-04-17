@@ -1,14 +1,16 @@
 
-import { useLazyQuery, useQuery } from "@apollo/client"
-import { useEffect, VFC } from "react"
-import { useCalendar } from "../../hooks/useCalendar"
-import { GET_MY_ALL_SCHEDULES, GET_ONE_DAY_SCHEDULES } from "../../queries"
+import { useQuery } from "@apollo/client"
+import { VFC } from "react"
+import { GET_MY_ALL_SCHEDULES } from "../../queries"
 import { MyAllSchedulesType } from "../../types/queriesType"
-import { Calendar } from "../organisms/layout/Calendar"
-import { ScheduleDetail } from "../organisms/layout/ScheduleDetail"
+import { Calendar } from "../organisms/calendar/Calendar"
+import { CalendarMenubar } from "../organisms/calendar/CalendarMenubar"
+import { CalendarDetail } from "../organisms/calendar/CalendarDetail"
+import { Spinner } from "@chakra-ui/spinner"
+import { Box } from "@chakra-ui/layout"
+import { SectionCard } from "../organisms/layout/SectionCard"
 
 export const CalendarSection: VFC = () => {
-    
     const {
         loading: loadingAllSchedules,
         data: dataAllSchedules,
@@ -17,12 +19,17 @@ export const CalendarSection: VFC = () => {
         fetchPolicy: "cache-and-network",
     })
 
-    if (loadingAllSchedules) return <h1>Loading...</h1>
+    if (loadingAllSchedules) return (
+        <Box textAlign="center">
+            <Spinner/>
+        </Box>
+    )
     else if (errorAllSchedules) return <h1>error: {errorAllSchedules.message}</h1>
     return (
-        <>
-            <ScheduleDetail dataAllSchedules={dataAllSchedules} />
+        <SectionCard>
+            <CalendarDetail dataAllSchedules={dataAllSchedules} />
+            <CalendarMenubar />
             <Calendar dataAllSchedules={dataAllSchedules} />
-        </>
+        </SectionCard>
     )
 }

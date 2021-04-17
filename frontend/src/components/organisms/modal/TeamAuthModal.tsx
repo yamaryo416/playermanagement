@@ -44,7 +44,7 @@ export const TeamAuthModal: VFC = () => {
                     <ModalBody>loading...</ModalBody>
                 ) : (
                     <>
-                        <ModalBody>
+                        <ModalBody color="black">
                             <Heading as="h3">以下のチームに加入します。よろしいですか？</Heading>
                             <Text>チーム名: {dataOneTeam?.team.name}</Text>
                             <Button onClick={() => joinTeam() }>加入する</Button>
@@ -55,7 +55,7 @@ export const TeamAuthModal: VFC = () => {
                     </>
                 )):(
                     <>
-                        <ModalBody pb={6}>
+                        <ModalBody color="black" pb={6}>
                             <form onSubmit={(e) => {
                                 e.preventDefault()
                                 isJoin ? searchTeam() : createTeam()

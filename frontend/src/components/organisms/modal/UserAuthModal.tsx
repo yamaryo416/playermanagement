@@ -1,6 +1,6 @@
 import React, { memo, VFC } from 'react'
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from '@chakra-ui/modal'
-import { Link, Stack } from '@chakra-ui/layout'
+import { Box, Link, Stack } from '@chakra-ui/layout'
 import { FormControl, FormLabel } from '@chakra-ui/form-control'
 import { Input } from '@chakra-ui/input'
 import { Formik } from 'formik'
@@ -9,6 +9,9 @@ import { Button } from '@chakra-ui/button'
 import { useUser } from '../../../hooks/useUser'
 import { useRecoilState } from 'recoil'
 import { userAuthModalState } from '../../../store/userAuthModalState'
+import { UserAuthForm } from '../../molecules/UserAuthForm'
+import { ErrorText } from '../../atoms/text/ErrorText'
+import { SecondaryButton } from '../../atoms/button/SecondaryButton'
 
 export const UserAuthModal: VFC= memo(() => {
 
@@ -25,8 +28,10 @@ export const UserAuthModal: VFC= memo(() => {
             autoFocus={false}
         >
             <ModalOverlay/>
-            <ModalContent>
-                <ModalHeader textAlign="center">{isLogin ? 'ログイン' : 'ユーザー作成'}</ModalHeader>
+            <ModalContent color="black">
+                <ModalHeader textAlign="center" fontSize="25px" >
+                    {isLogin ? 'ログイン' : 'ユーザー作成'}
+                </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody pb={6}>
                     <Formik
@@ -36,6 +41,7 @@ export const UserAuthModal: VFC= memo(() => {
                             loginOrSignup(values)
                         }}
                         validationSchema={object().shape({
+                            nickname: string().required("1文字以上入力してください。"),
                             email: string().email("正しいEmailを入力してください。").required("Emailは必須です。"),
                             password: string().required("パスワードは必須です。").min(6, "パスワードは6文字以上で入力してください"),
                         })}
@@ -52,36 +58,39 @@ export const UserAuthModal: VFC= memo(() => {
                             <form onSubmit={handleSubmit}>
                                 <Stack spacing={4}>
                                     {!isLogin && (
-                                        <FormControl id="nickname">
-                                            <FormLabel>ニックネーム</FormLabel>
-                                            <Input name="nickname" onChange={handleChange} onBlur={handleBlur} value={values.nickname} />
-                                        </FormControl>
+                                        <UserAuthForm name="nickname" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.nickname}>
+                                            ニックネーム
+                                        </UserAuthForm>
                                     )}
-                                    <FormControl id="email">
-                                        <FormLabel>Eメール</FormLabel>
-                                        <Input name="email" type="email" onChange={handleChange} onBlur={handleBlur} value={values.email} />
-                                    </FormControl>
-                                    {touched.email && errors.email ? (
-                                        <div>{errors.email}</div>
+                                    {touched.nickname && errors.nickname ? (
+                                        <ErrorText>{errors.nickname}</ErrorText>
                                     ): null}
-                                    <FormControl id="password">
-                                        <FormLabel>パスワード</FormLabel>
-                                        <Input name="password" type="password" onChange={handleChange} onBlur={handleBlur} value={values.password} />
-                                    </FormControl>
+                                    <UserAuthForm name="email" type="email" handleChange={handleChange} handleBlur={handleBlur} value={values.email}>
+                                        Eメール
+                                    </UserAuthForm>
+                                    {touched.email && errors.email ? (
+                                        <ErrorText>{errors.email}</ErrorText>
+                                    ): null}
+                                    <UserAuthForm name="password" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password}>
+                                        パスワード
+                                    </UserAuthForm>
                                     {touched.password && errors.password ? (
-                                        <div>{errors.password}</div>
+                                        <ErrorText>{errors.password}</ErrorText>
                                     ): null}
                                     {!isLogin && (
-                                    <FormControl id="password_confirmation">
-                                        <FormLabel>パスワード(確認用)</FormLabel>
-                                        <Input name="password_confirmation" type="password" onChange={handleChange} onBlur={handleBlur} value={values.password_confirmation} />
-                                    </FormControl>
+                                        <UserAuthForm name="password_confirmation" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password_confirmation}>
+                                            パスワード
+                                        </UserAuthForm>
                                     )}
-                                    <Button
-                                        variant="contained"
-                                        disabled={!isValid}
-                                        type="submit"
-                                    >{isLogin ? 'ログイン' : "ユーザー登録"}</Button>
+                                    <Box textAlign="center">
+                                        <Button
+                                            disabled={!isValid}
+                                            type="submit"
+                                            bg="blue.500"
+                                            px={5}
+                                            color="white"
+                                        >{isLogin ? 'ログイン' : "ユーザー登録"}</Button>
+                                    </Box>
                                 </Stack>
                             </form>
                         )}
@@ -89,7 +98,7 @@ export const UserAuthModal: VFC= memo(() => {
                 </ModalBody>
                 <ModalFooter px={4} justifyContent="space-between">
                     <Link verticalAlign="middle" onClick={onClickChangeMode}>{isLogin ? 'アカウントを持っていない場合はこちら': '既にアカウントを持っている場合はこちら'}</Link>
-                    <Button onClick={onCloseUserAuthModal}>閉じる</Button>                      
+                    <SecondaryButton onClick={onCloseUserAuthModal}>閉じる</SecondaryButton>
                 </ModalFooter>
             </ModalContent>
         </Modal>

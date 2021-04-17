@@ -14,6 +14,8 @@ export const MenuButton: VFC<Props> = (props) => {
         <div>
             <Box 
                 textAlign="center"
+                pt={6}
+                px={3}
                 onClick={() => onOpen()}
             >
                 <Box>
