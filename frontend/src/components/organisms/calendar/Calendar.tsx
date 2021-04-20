@@ -1,41 +1,44 @@
-import { useEffect, useState, VFC } from "react"
-import { Box, Link, Text, Wrap, WrapItem } from "@chakra-ui/layout"
-import { Image, Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react"
-import moment, { Moment } from "moment"
-import { useCalendar } from "../../../hooks/useCalendar"
-import { MyAllSchedulesType } from "../../../types/queriesType"
-import { CustomTable } from "../../atoms/table/CustomTable"
-import { CustomThead } from "../../atoms/thead/CustomThead"
-import { CustomSecondTh } from "../../atoms/th/CustomSecondTh"
-import { CustomTbody } from "../../atoms/tbody/CustomTbody"
-import { CalendarSecondTd } from "../../atoms/td/CalendarSecondTd"
-import { CalendarTr } from "../../atoms/tr/CalendarTr"
-import { TODAY } from "../../../constants"
-import { CalendarFirstTd } from "../../atoms/td/CalendarFirstTd"
-import { CalendarFirstTh } from "../../atoms/th/CalendarFirstTh"
-import { TrainingIcon } from "../../molecules/TrainingIcon"
-import { WhiteSquatIcon } from "../../atoms/image/WhiteSquatIcon"
+import { Box, Link, Text, Wrap, WrapItem } from "@chakra-ui/layout";
+import moment, { Moment } from "moment";
+import { useEffect, useState, VFC } from "react";
+import { TODAY } from "../../../constants";
+import { useCalendar } from "../../../hooks/useCalendar";
+import { ScheduleType } from "../../../types/queriesType";
+import { CustomTable } from "../../atoms/table/CustomTable";
+import { CustomTbody } from "../../atoms/tbody/CustomTbody";
+import { CalendarFirstTd } from "../../atoms/td/CalendarFirstTd";
+import { CalendarSecondTd } from "../../atoms/td/CalendarSecondTd";
+import { CalendarFirstTh } from "../../atoms/th/CalendarFirstTh";
+import { CalendarSecondTh } from "../../atoms/th/CalendarSecondTh";
+import { CustomThead } from "../../atoms/thead/CustomThead";
+import { CalendarTr } from "../../atoms/tr/CalendarTr";
+import { TrainingIcon } from "../../molecules/TrainingIcon";
+import { SectionCard } from "../layout/SectionCard";
 
- type Props = {
-    dataAllSchedules: MyAllSchedulesType | undefined;
+
+type Maybe<T> = T | null;
+
+type Props = {
+    schedules: {
+        edges: Maybe<ScheduleType[]>
+    } | undefined;
 }
 
-export const Calendar: VFC<Props> = (props) => {
-    const { dataAllSchedules } = props;
-    const { firstDate, onChangeOneDaySchedules } = useCalendar()
 
+export const Calendar: VFC<Props> = (props) => {
+    const { schedules } = props
+    const { firstDate, setOneDay } = useCalendar()
 
     const [isIconMode, setIsIconMode] = useState(true)
     const [datesOfWeek, setDatesOfWeek] = useState<Moment[]>([])
 
     const weekSchedules = (d: moment.Moment) => 
-        dataAllSchedules?.myAllSchedules.edges?.
+        schedules?.edges?.
         filter(sche => sche.node.date === d.format("YYYY-MM-DD").toString()).
         map((sche) => (
         <WrapItem>
             {isIconMode ? (
-            
-                <TrainingIcon iconNumber={sche.node.trainingSchedule.iconNumber} size="50px" />
+                <TrainingIcon iconNumber={sche.node.trainingSchedule.iconNumber} color="white" size="50px" />
             ): (
                 <Text
                     maxW="130px"
@@ -43,10 +46,11 @@ export const Calendar: VFC<Props> = (props) => {
                     whiteSpace="nowrap"
                     overflow="hidden"
                     textOverflow="ellipsis"
-                    color="orange.500"
-                >{sche.node.trainingSchedule.title}</Text>
+                    color="white"
+                >
+                    {sche.node.trainingSchedule.title}
+                </Text>
             )}
-             
         </WrapItem>
         )
     )
@@ -75,7 +79,7 @@ export const Calendar: VFC<Props> = (props) => {
                 <CustomThead>
                     <tr> 
                         <CalendarFirstTh>日付</CalendarFirstTh>
-                        <CustomSecondTh>予定</CustomSecondTh>
+                        <CalendarSecondTh>予定</CalendarSecondTh>
                     </tr>
                 </CustomThead>
                 <CustomTbody>
@@ -83,7 +87,7 @@ export const Calendar: VFC<Props> = (props) => {
                         <CalendarTr 
                             isToday={d.format("YYYY-MM-DD") === TODAY}
                             onClick={() => {
-                                onChangeOneDaySchedules(d)
+                            setOneDay(d.format("YYYY-MM-DD"))
                         }}>
                             <CalendarFirstTd isToday={d.format("YYYY-MM-DD") === TODAY}>
                                 {moment(firstDate).get("M") + 1 === d.get("M") ? d.format("M月D日") : d.format("D日")}
@@ -100,4 +104,3 @@ export const Calendar: VFC<Props> = (props) => {
         </Box>
     )
 }
-

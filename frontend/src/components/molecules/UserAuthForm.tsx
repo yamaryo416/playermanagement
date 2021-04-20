@@ -13,12 +13,13 @@ type Props = {
         (e: FocusEvent<any>): void;
         <T = any>(fieldOrEvent: T): T extends string ? (e: any) => void : void; }
     value: string;
+    placeholder: string;
     children: string;
 }
 
 
 export const UserAuthForm: VFC<Props> = (props) => {
-    const { name, type, handleChange, handleBlur, value, children } = props
+    const { name, type, handleChange, handleBlur, value, placeholder  , children } = props
     return (
         <FormControl>
             <FormLabel
@@ -32,6 +33,7 @@ export const UserAuthForm: VFC<Props> = (props) => {
                 value={value}
                 borderColor="gray.400"
                 borderRadius="1000px"
+                placeholder={placeholder}
             />
         </FormControl>
     )

@@ -1,6 +1,5 @@
-
 import { useQuery } from "@apollo/client"
-import { VFC } from "react"
+import { memo, VFC } from "react"
 import { GET_MY_ALL_SCHEDULES } from "../../queries"
 import { MyAllSchedulesType } from "../../types/queriesType"
 import { Calendar } from "../organisms/calendar/Calendar"
@@ -10,7 +9,12 @@ import { Spinner } from "@chakra-ui/spinner"
 import { Box } from "@chakra-ui/layout"
 import { SectionCard } from "../organisms/layout/SectionCard"
 
-export const CalendarSection: VFC = () => {
+type Props = {
+    myId: string | undefined;
+}
+
+export const MyTeamCalendarSection: VFC<Props> = memo((props) => {
+    const { myId } = props;
     const {
         loading: loadingAllSchedules,
         data: dataAllSchedules,
@@ -18,6 +22,7 @@ export const CalendarSection: VFC = () => {
     }  = useQuery<MyAllSchedulesType>(GET_MY_ALL_SCHEDULES, {
         fetchPolicy: "cache-and-network",
     })
+    console.log("calendar")
 
     if (loadingAllSchedules) return (
         <Box textAlign="center">
@@ -27,9 +32,9 @@ export const CalendarSection: VFC = () => {
     else if (errorAllSchedules) return <h1>error: {errorAllSchedules.message}</h1>
     return (
         <SectionCard>
-            <CalendarDetail dataAllSchedules={dataAllSchedules} />
+            <CalendarDetail myId={myId} />
             <CalendarMenubar />
-            <Calendar dataAllSchedules={dataAllSchedules} />
+            <Calendar schedules={dataAllSchedules?.myAllSchedules} />
         </SectionCard>
     )
-}
+})

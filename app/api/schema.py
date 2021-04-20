@@ -29,6 +29,7 @@ class TeamNode(DjangoObjectType):
     class Meta:
         model = Team
         filter_fields = {
+            'id': ['exact'],
             'name': ['exact'],
             'password': ['exact'],
         }
@@ -99,7 +100,7 @@ class CreateProfileMutation(relay.ClientIDMutation):
 
         return CreateProfileMutation(profile=profile)
 
-class UpdatProfileMutation(relay.ClientIDMutation):
+class UpdateProfileMutation(relay.ClientIDMutation):
     class Input:
         nickname = graphene.String()
         team_prof = graphene.ID()
@@ -114,15 +115,20 @@ class UpdatProfileMutation(relay.ClientIDMutation):
         if input.get('nickname') is not None:
             profile.nickname = input.get('nickname')
         if input.get('team_prof') is not None:
-            profile.team_prof = Team.objects.get(id=from_global_id(input.get('team_prof'))[1])
+            team_prof = Team.objects.get(id=from_global_id(input.get('team_prof'))[1])
+            profile.team_prof = team_prof
             profile.is_coach = input.get('is_coach')
+            team_board = TeamBoard.objects.get(team=team_prof)
+            team_board.join_count += 1
+            team_board.save()
         profile.save()
 
-        return UpdatProfileMutation(profile=profile)
+        return UpdateProfileMutation(profile=profile)
 
 class CreateTeamMutation(relay.ClientIDMutation):
     class Input:
         name = graphene.String(required=True)
+        is_anyone_join = graphene.Boolean(required=True)
         password = graphene.String(required=True)
 
     team = graphene.Field(TeamNode)
@@ -131,6 +137,7 @@ class CreateTeamMutation(relay.ClientIDMutation):
     def mutate_and_get_payload(root, info, **input):
         team = Team(
             name=input.get('name'),
+            is_anyone_join=input.get('is_anyone_join'),
             password=input.get('password')
         )
         team.save()
@@ -161,9 +168,10 @@ class CreateTrainingMutation(relay.ClientIDMutation):
     class Input:
         title = graphene.String(required=True)
         count = graphene.Int()
+        load = graphene.Int()
         distance = graphene.Int()
         description = graphene.String()
-        icon_number =  graphene.Int()
+        icon_number = graphene.Int()
 
     training = graphene.Field(TrainingNode)
 
@@ -177,6 +185,8 @@ class CreateTrainingMutation(relay.ClientIDMutation):
         )
         if input.get('count') != 0:
             training.count = input.get('count')
+        if input.get('load') != 0:
+            training.load = input.get('load')
         if input.get('distance') != 0:
             training.distance = input.get('distance')
         if input.get('icon_number') != 0:
@@ -283,6 +293,29 @@ class CreateManySchedulesMutation(relay.ClientIDMutation):
 
         return CreateManySchedulesMutation(schedule=schedule)
 
+class UpdateScheduleMutation(relay.ClientIDMutation):
+    class Input:
+        id = graphene.ID(required=True)
+        user_id = graphene.String(required=True)
+
+    schedule = graphene.Field(ScheduleNode)
+
+    @login_required
+    def mutate_and_get_payload(root, info, **input):
+        schedule = Schedule.objects.get(id=from_global_id(input.get('id'))[1])
+        user = input.get("user_id")
+        if user in schedule.finished_member:
+            users = schedule.finished_member.replace("/" + user, '')
+            schedule.finished_count -= 1
+        else:
+            users = '{}/{}'.format(schedule.finished_member, user)
+            schedule.finished_count += 1
+        schedule.finished_member = users
+        schedule.save()
+
+        return UpdateScheduleMutation(schedule=schedule)
+
+
 class CreatePostMutation(relay.ClientIDMutation):
     class Input:
         text = graphene.String(required=True)
@@ -305,20 +338,23 @@ class Mutation(graphene.AbstractType):
     create_user = CreateUserMutation.Field()
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     create_profile = CreateProfileMutation.Field()
-    update_profile = UpdatProfileMutation.Field()
+    update_profile = UpdateProfileMutation.Field()
     create_team = CreateTeamMutation.Field()
     update_team_board = UpdateTeamBoardMutation.Field()
     create_training = CreateTrainingMutation.Field()
     update_training_nice = UpdateTrainingNiceMutation.Field()
     create_schedule = CreateScheduleMutation.Field()
+    update_schedule = UpdateScheduleMutation.Field()
     create_many_schedules = CreateManySchedulesMutation.Field()
     create_post = CreatePostMutation.Field()
     
 class Query(graphene.ObjectType):
     profile = graphene.Field(ProfileNode)
-    team = graphene.Field(TeamNode,
-                          name=graphene.NonNull(graphene.String),
-                          password=graphene.NonNull(graphene.String))
+    team_from_name = graphene.Field(TeamNode,
+                                    name=graphene.NonNull(graphene.String),
+                                    password=graphene.NonNull(graphene.String))
+    team_from_id = graphene.Field(TeamNode,
+                                  id=graphene.NonNull(graphene.ID))
     my_trainings = DjangoFilterConnectionField(TrainingNode)
     my_all_schedules = DjangoFilterConnectionField(ScheduleNode)
     my_week_schedules = DjangoFilterConnectionField(ScheduleNode,
@@ -328,6 +364,7 @@ class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserNode)
     all_profiles = DjangoFilterConnectionField(ProfileNode)
     all_team = DjangoFilterConnectionField(TeamNode)
+    all_team_board = DjangoFilterConnectionField(TeamBoardNode)
     my_team_posts = DjangoFilterConnectionField(PostNode)
 
     @login_required
@@ -335,11 +372,16 @@ class Query(graphene.ObjectType):
         return Profile.objects.get(user_prof=info.context.user.id)
 
     @login_required
-    def resolve_team(self, info, **kwargs):
+    def resolve_team_from_name(self, info, **kwargs):
         name = kwargs.get('name')
         password = kwargs.get('password')
         if name is not None and password is not None:
             return Team.objects.get(name=name, password=password)
+
+    @login_required
+    def resolve_team_from_id(self, info, **kwargs):
+        id = from_global_id(kwargs.get('id'))[1]
+        return Team.objects.get(id=id)
 
     @login_required
     def resolve_my_trainings(self, info, **kwargs):
@@ -347,7 +389,7 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_my_all_schedules(self, info, **kwargs):
-        return Schedule.objects.filter(team_schedule=info.context.user.profile.team_prof)
+        return Schedule.objects.filter(team_schedule=info.context.user.profile.team_prof).order_by('-created_at')
 
     @login_required
     def resolve_my_week_schedules(self, info, **kwargs):
@@ -370,6 +412,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_all_team(self, info, **kwargs):
         return Team.objects.all()
+
+    @login_required
+    def resolve_all_team_board(self, info, **kwargs):
+        return TeamBoard.objects.filter(team__is_anyone_join=True).order_by('-join_count')
 
     @login_required
     def resolve_my_team_posts(self, info, **kwargs):

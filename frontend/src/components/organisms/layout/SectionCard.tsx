@@ -9,7 +9,7 @@ export const SectionCard: VFC<Props> = (props) => {
     const { children } = props;
 
     return (
-        <Box w="500px" p={5} borderColor="gray.600" borderStyle="solid" borderWidth="1px">
+        <Box w="500px" p={5} borderColor="gray.600" bg="rgb(2, 2, 2)" borderStyle="solid" borderWidth="1px">
             {children}
         </Box>
     )

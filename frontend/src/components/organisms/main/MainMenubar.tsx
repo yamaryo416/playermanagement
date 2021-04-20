@@ -5,15 +5,24 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import InsertInvitationIcon from '@material-ui/icons/InsertInvitation';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import GroupIcon from '@material-ui/icons/Group';
 
 import { MenuButton } from "../../molecules/MenuButton";
 import { SlideFade } from "@chakra-ui/transition";
 import { useSchedule } from "../../../hooks/useSchedule";
 import { useTraining } from "../../../hooks/useTraining";
+import { useTeam } from "../../../hooks/useTeam";
 
-export const MainMenubar:VFC = (props) => {
+type Props = {
+    joinTeam: boolean;
+}
+
+export const MainMenubar:VFC<Props> = (props) => {
+    const { joinTeam } = props;
+
     const [menubarOpen, setMenubarOpen] = useState(true)
 
+    const { onOpenTeamAuthModal } = useTeam()
     const { onOpenScheduleCreateModal } = useSchedule()
     const { onOpenTrainingCreateModal } = useTraining()
 
@@ -30,12 +39,22 @@ export const MainMenubar:VFC = (props) => {
                 >
                     <Flex>
                         <Box>
-                            <MenuButton title="トレーニング作成" onOpen={onOpenTrainingCreateModal}>
-                                <NoteAddIcon style={{ fontSize: 60 }} />
-                            </MenuButton>
-                            <MenuButton title="スケジュール作成" onOpen={onOpenScheduleCreateModal}>
-                                <InsertInvitationIcon style={{ fontSize: 60}} />
-                            </MenuButton>
+                        {joinTeam ? (
+                            <>
+                                <MenuButton title="トレーニング作成" onOpen={onOpenTrainingCreateModal}>
+                                    <NoteAddIcon style={{ fontSize: 60 }} />
+                                </MenuButton>
+                                <MenuButton title="スケジュール作成" onOpen={onOpenScheduleCreateModal}>
+                                    <InsertInvitationIcon style={{ fontSize: 60}} />
+                                </MenuButton>
+                            </>
+                        ) : (
+                            <>
+                                <MenuButton title="チームに参加" onOpen={onOpenTeamAuthModal}>
+                                    <GroupIcon style={{ fontSize: 60 }} />
+                                </MenuButton>
+                            </>
+                        )}
                         </Box>
                         <ArrowBackIosIcon style={{ display: "block", height: "100vh", verticalAlign: "middle" }} onClick={() => setMenubarOpen(!menubarOpen)} />
                     </Flex>

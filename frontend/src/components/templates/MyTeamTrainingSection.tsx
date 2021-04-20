@@ -4,7 +4,6 @@ import { useTraining } from "../../hooks/useTraining"
 import { MyTrainingsType } from "../../types/queriesType"
 import { TrainingFirstTh } from "../atoms/th/TrainingFirstTh"
 import { TrainingSecondTd } from "../atoms/td/TrainingSecondTd"
-import { CustomSecondTh } from "../atoms/th/CustomSecondTh"
 import { CustomTable } from "../atoms/table/CustomTable"
 import { CustomTbody } from "../atoms/tbody/CustomTbody"
 import { CustomThead } from "../atoms/thead/CustomThead"
@@ -18,15 +17,16 @@ import { useQuery } from "@apollo/client"
 import { GET_MY_TRAININGS } from "../../queries"
 import { TrainingTr } from "../atoms/tr/TrainingTr"
 import { TrainingFirstTd } from "../atoms/td/TrainingFirstTd"
-import { TrainingThirdTd } from "../atoms/td/TrainingThirdTd"
 import { TrainingIcon } from "../molecules/TrainingIcon"
+import { TrainingSecondTh } from "../atoms/th/TrainingSecondTh"
+import { TrainingDetailModal } from "../organisms/modal/TrainingDetailModal"
 
 type Props = {
-    userId: string | undefined;
+    myId: string | undefined;
 }
 
-export const TrainingSection:VFC<Props> = (props) => {
-    const { userId } = props
+export const MyTeamTrainingSection:VFC<Props> = (props) => {
+    const { myId } = props
 
     const { loading: loadingMyTrainings, data: dataMyTrainings, error: errorMyTrainings } = useQuery<MyTrainingsType>(GET_MY_TRAININGS, {
         fetchPolicy: "cache-and-network",
@@ -41,33 +41,39 @@ export const TrainingSection:VFC<Props> = (props) => {
 
     return (
         <SectionCard>
-             <Heading textAlign="center" fontSize="20px" pb={10}>トレーニング一覧</Heading>
+             <Heading textAlign="center" fontSize="20px" pb={10} color="rgb(66, 203, 237)">トレーニング一覧</Heading>
               <CustomTable>
                 <CustomThead>
                     <tr>
                         <TrainingFirstTh>タイトル</TrainingFirstTh>
-                        <CustomSecondTh>回数(回) </CustomSecondTh>
-                        <CustomSecondTh>距離(km)</CustomSecondTh>
+                        <TrainingSecondTh>回</TrainingSecondTh>
+                        <TrainingSecondTh>kg</TrainingSecondTh>
+                        <TrainingSecondTh>km</TrainingSecondTh>       
                     </tr>
                 </CustomThead>
                 <CustomTbody>
                     {dataMyTrainings?.myTrainings.edges?.map((train) => (
                         <TrainingTr>
                             <Flex alignItems="center">
-                                <TrainingFirstTd onClick={() => onClickSelectedTraining(
+                                <TrainingFirstTd isClick={true} onClick={() => onClickSelectedTraining(
                                     train.node.title,
                                     train.node.count,
+                                    train.node.load,
                                     train.node.distance,
                                     train.node.description
                                 )}>{train.node.title}</TrainingFirstTd>
                                 <TrainingSecondTd>{train.node.count}</TrainingSecondTd>
-                                <TrainingThirdTd>{train.node.distance}</TrainingThirdTd>
+                                <TrainingSecondTd>{train.node.load}</TrainingSecondTd>
+                                <TrainingSecondTd>{train.node.distance}</TrainingSecondTd>
                                 <Flex>
-                                    {train.node.niceUser.includes(userId!) ? <ThumbUpIcon onClick={() => updateTrainingNice(train.node.id, userId!)} /> : <ThumbUpOutlinedIcon onClick={() => updateTrainingNice(train.node.id, userId!)} /> }
+                                    {train.node.niceUser.includes(myId!) ?
+                                        <ThumbUpIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> :
+                                        <ThumbUpOutlinedIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> 
+                                    }
                                     <Text pl={2}>{train.node.niceCount}</Text>
                                 </Flex>
                                 <Box pl={3}>
-                                    <TrainingIcon iconNumber={train.node.iconNumber} size="50px" />
+                                    <TrainingIcon iconNumber={train.node.iconNumber} color="white" size="50px" />
                                 </Box>
                             </Flex>
                         </TrainingTr>
@@ -75,6 +81,7 @@ export const TrainingSection:VFC<Props> = (props) => {
                 </CustomTbody>
              </CustomTable>
              <TrainingCreateModal/>
+             <TrainingDetailModal />
             <ScheduleCreateModal dataMyTrainings={dataMyTrainings} />
         </SectionCard>
     )

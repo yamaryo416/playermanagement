@@ -17,6 +17,9 @@ export const useCalendar = () => {
         if (sche.node.trainingSchedule.count !== null) {
             scheduleContent  +=`/ ${sche.node.trainingSchedule.count}回`
         }
+        if (sche.node.trainingSchedule.load !== null) {
+            scheduleContent += `/ ${sche.node.trainingSchedule.load}kg`
+        }
         if (sche.node.trainingSchedule.distance !== null) {
             scheduleContent += `/ ${sche.node.trainingSchedule.distance}km`
         }
@@ -42,6 +45,7 @@ export const useCalendar = () => {
     return ({
         firstDate,
         oneDay,
+        setOneDay,
         todayDiff,
         scheduleContent,
         onClickLastWeek,

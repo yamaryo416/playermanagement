@@ -6,14 +6,16 @@ import { TeamAuthModal } from '../organisms/modal/TeamAuthModal'
 import { TrainingCreateModal } from '../organisms/modal/TrainingCreateModal'
 import { MainMenubar } from '../organisms/main/MainMenubar'
 import { ScheduleCreateModal } from '../organisms/modal/ScheduleCreateModal'
-import { CalendarSection } from '../templates/CalendarSection'
-import { Box, Flex, HStack, Wrap, WrapItem } from '@chakra-ui/layout'
+import { MyTeamCalendarSection } from '../templates/MyTeamCalendarSection'
+import { Box, Flex, Heading, HStack, Wrap, WrapItem } from '@chakra-ui/layout'
 import { Spinner } from '@chakra-ui/spinner'
-import { TrainingSection } from '../templates/TrainingSection'
+import { MyTeamTrainingSection } from '../templates/MyTeamTrainingSection'
 import { MyProfileType, MyTrainingsType } from '../../types/queriesType'
 import { useTraining } from '../../hooks/useTraining'
 import { TrainingDetailModal } from '../organisms/modal/TrainingDetailModal'
 import { TeamBoardSection } from '../templates/TeamBoardSection'
+import { TeamListSection } from '../templates/TeamListSection'
+import { useTeam } from '../../hooks/useTeam'
 
 export const Main: VFC = memo(() => {
     const { loading: loadingMyProfile, data: dataMyProfile, error: errorMyProfile } = useQuery<MyProfileType>(GET_MY_PROFILE, {
@@ -28,7 +30,7 @@ export const Main: VFC = memo(() => {
         <>
             <HeaderForAuthUser nickname={dataMyProfile?.profile.nickname} teamname={dataMyProfile?.profile.teamProf ? dataMyProfile?.profile.teamProf.name : "未所属" } />
             <Flex>
-                <MainMenubar />
+                <MainMenubar joinTeam={dataMyProfile?.profile.teamProf !== null} />
                 <Wrap mt="100px" spacing={10}>
                     <WrapItem>
                         <TeamBoardSection
@@ -40,15 +42,13 @@ export const Main: VFC = memo(() => {
                         />
                     </WrapItem>
                     <WrapItem>
-                        <CalendarSection />
+                        <MyTeamCalendarSection myId={dataMyProfile?.profile.id}/>
                     </WrapItem>
                     <WrapItem>
-                        <TrainingSection userId={dataMyProfile?.profile.id} />
+                        <MyTeamTrainingSection myId={dataMyProfile?.profile.id} />
                     </WrapItem>
                 </Wrap>
             </Flex>
-            <TeamAuthModal />
-            <TrainingDetailModal />
         </>
     )
 })

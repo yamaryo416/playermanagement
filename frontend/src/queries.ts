@@ -30,11 +30,75 @@ export const GET_MY_PROFILE = gql`
     }
 `;
 
-export const GET_ONE_TEAM = gql`
+export const GET_ONE_TEAM_FROM_NAME = gql`
     query($name: String!, $password: String!) {
-        team(name: $name, password: $password) {
+        teamFromName(name: $name, password: $password) {
             id
             name
+        }
+    }
+`;
+
+export const GET_ONE_TEAM_FROM_ID = gql`
+    query($id: ID!) {
+        teamFromId(id: $id) {
+            id
+            name
+            teamBoard {
+                introduction
+                joinCount
+                coach {
+                    nickname
+                }
+            }
+            schedules {
+                edges {
+                    node {
+                        trainingSchedule {
+                            title
+                            count
+                            load
+                            distance
+                            iconNumber
+                        }
+                        date
+                    }
+                }
+            }
+            trainings {
+                edges {
+                    node {
+                        title
+                        load
+                        count
+                        distance
+                        iconNumber
+                        niceCount
+                    }
+                }
+            }
+        }
+    }
+
+`
+
+export const GET_ALL_TEAM_BOARD = gql`
+    query {
+        allTeamBoard {
+            edges {
+                node {
+                    id
+                    introduction
+                    joinCount
+                    coach {
+                        nickname
+                    }
+                    team {
+                        id
+                        name
+                    }
+                }
+            }
         }
     }
 `;
@@ -47,6 +111,7 @@ export const GET_MY_TRAININGS = gql`
                     id
                     title
                     count
+                    load
                     distance
                     description
                     iconNumber
@@ -63,6 +128,7 @@ export const GET_SINGLE_TRAININGS = gql`
         training(id:  $id) {
             title
             count
+            load
             distance
             description
         }
@@ -89,13 +155,18 @@ export const GET_ONE_DAY_SCHEDULES = gql`
         myAllSchedules(date: $date) {
             edges {
                 node {
+                    id
                     trainingSchedule {
                         title
                         count
+                        load
                         distance
                         description
+                        iconNumber
                     }
                     date
+                    finishedMember
+                    finishedCount
                 }
             }
         }
@@ -107,15 +178,19 @@ export const GET_MY_ALL_SCHEDULES = gql`
         myAllSchedules {
             edges {
                 node {
+                    id
                     trainingSchedule {
                         id
                         title
                         count
+                        load
                         distance
                         description
                         iconNumber
                     }
                     date
+                    finishedMember
+                    finishedCount
                 }
             }
         }
@@ -172,8 +247,8 @@ export const UPDATE_MY_PROFILE_TEAM  = gql`
 `;
 
 export const CREATE_TEAM = gql`
-    mutation($name: String!, $password: String!) {
-        createTeam(input: {name: $name, password: $password}) {
+    mutation($name: String!,$isAnyoneJoin: Boolean!, $password: String!) {
+        createTeam(input: {name: $name, isAnyoneJoin: $isAnyoneJoin, password: $password}) {
             team {
                 id
             }
@@ -185,6 +260,7 @@ export const CREATE_TRAINING = gql`
     mutation(
         $title: String!, 
         $count: Int!,
+        $load: Int!,
         $distance: Int!,
         $description: String!,
         $iconNumber: Int!,
@@ -192,6 +268,7 @@ export const CREATE_TRAINING = gql`
         createTraining(input: { 
                             title: $title,
                             count: $count,
+                            load: $load,
                             distance: $distance,
                             description: $description,
                             iconNumber: $iconNumber
@@ -261,6 +338,16 @@ export const CREATE_POST = gql`
         createPost(input: {text: $text}) {
             post {
                 text
+            }
+        }
+    }
+`;
+
+export const UPDATE_SCHEDULE = gql`
+    mutation($id: ID!, $userId: String!) {
+        updateSchedule(input: {id: $id, userId: $userId}) {
+            schedule {
+                date
             }
         }
     }

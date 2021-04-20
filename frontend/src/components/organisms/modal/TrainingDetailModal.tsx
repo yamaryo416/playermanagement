@@ -25,6 +25,7 @@ export const TrainingDetailModal: VFC = () => {
                     <Stack spacing={4}>
                         <Heading fontSize="20px">{trainingSelected.title}</Heading>
                         <Heading fontSize="20px">{trainingSelected.count !== null ? `回数:　${trainingSelected.count} 回`: null}</Heading>
+                        <Heading fontSize="20px">{trainingSelected.load !== null ? `負荷:　${trainingSelected.load} kg`: null}</Heading>
                         <Heading fontSize="20px">{trainingSelected.distance !== null ? `距離:　${trainingSelected.distance} km`: null}</Heading>
                         <Heading fontSize="20px">{trainingSelected.description !== "" ? `説明:　${trainingSelected.description}`: null}</Heading>
                     </Stack>

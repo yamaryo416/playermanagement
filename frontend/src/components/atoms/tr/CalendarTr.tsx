@@ -15,7 +15,7 @@ export const CalendarTr: VFC<Props> = (props) => {
 }
 
 const TodayTr = styled.tr`
-    border-bottom: solid 1px #ecc94b;
+    border-bottom: solid 1px #dd6b20;
     display: block;
     padding-top: 10px;
     padding-bottom: 10px;

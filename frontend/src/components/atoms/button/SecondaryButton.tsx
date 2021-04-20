@@ -13,7 +13,7 @@ export const SecondaryButton: VFC<Props> = (props) => {
             bg="gray.500"
             color="white"
             _hover={{
-                opacity: 0.5
+                opacity: 0.7
             }}
             onClick={onClick}
         >

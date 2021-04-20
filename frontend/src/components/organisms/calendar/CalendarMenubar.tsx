@@ -34,7 +34,7 @@ export const CalendarMenubar: VFC = () => {
             </Box>
             <Box>
                 <Box>
-                    <Link onClick={onClickThisWeek} color="orange.300">今週</Link>
+                    <Link onClick={onClickThisWeek} color="orange.500">今週</Link>
                 </Box>
                 <Box pt={2}>
                     <Link onClick={onClickNextWeek} >次週<ArrowForwardIosIcon /></Link>

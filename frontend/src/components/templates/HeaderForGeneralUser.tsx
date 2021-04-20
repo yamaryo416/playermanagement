@@ -1,14 +1,12 @@
+import { memo, VFC } from 'react'
 import { Heading, Link } from '@chakra-ui/layout'
-import React, { memo, VFC } from 'react'
-import { useSetRecoilState } from 'recoil'
-import { userAuthModalState } from '../../store/userAuthModalState'
+
+import { useUser } from '../../hooks/useUser'
 import { HeaderLayout } from '../organisms/layout/HeaderLayout'
 
 export const HeaderForGeneralUser: VFC = memo(() => {
     
-    const  setUserAuthModal = useSetRecoilState(userAuthModalState)
-
-    const onOpenUserAuthModal = () => setUserAuthModal(true)
+    const { onOpenUserAuthModal } = useUser()
 
     return (
         <HeaderLayout>

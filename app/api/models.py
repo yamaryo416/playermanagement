@@ -41,6 +41,7 @@ class Team(models.Model):
     for_number_regex = RegexValidator(regex=r'^[0-9]{4}', message=("四桁の数字を入力してください。"))
 
     name = models.CharField(max_length=20, unique=True)
+    is_anyone_join = models.BooleanField(default=True)
     password = models.CharField(validators=[for_number_regex], max_length=4)
 
     def __str__(self):
@@ -69,6 +70,7 @@ class TeamBoard(models.Model):
         Team, related_name="team_board",
         on_delete=models.CASCADE
     )
+    join_count = models.IntegerField(default=0)
     coach = models.OneToOneField(
         Profile, related_name="team_board",
         on_delete=models.CASCADE
@@ -76,6 +78,7 @@ class TeamBoard(models.Model):
 
 class Training(models.Model):
     title = models.CharField(max_length=20)
+    load = models.IntegerField(blank=True, null=True)
     count = models.IntegerField(blank=True, null=True)
     distance = models.IntegerField(blank=True, null=True)
     description = models.CharField(max_length=60, blank=True, null=True)

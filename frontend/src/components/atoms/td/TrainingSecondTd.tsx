@@ -13,6 +13,6 @@ export const TrainingSecondTd: VFC<Props> = (props) => {
 
 const STd = styled.td `
     display: flex;
-    padding-left: 5px;
-    width: 68px;
+    min-width: 40px;
+    padding-right: 20px;
 `;

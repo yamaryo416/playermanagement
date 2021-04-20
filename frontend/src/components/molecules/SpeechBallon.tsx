@@ -29,13 +29,13 @@ const MyTriangle = styled.div`
     display: inline-block;
     postion: absolute;
     transform: rotate(45deg) translateY(80%) translateX(-40%);
-    border-right: 10px solid #ecc948;
+    border-right: 10px solid rgb(255, 255, 0);
     height: 10px;
 `
 
 const MyText = styled.div`
     display: inline-block;
-    background-color: #ecc948;
+    background-color: rgb(255, 255, 0);
     border-radius: 20px;
     vertical-align: top;
     max-width: 300px;

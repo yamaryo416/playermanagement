@@ -1,4 +1,4 @@
-type Maybe<T> = T | null;
+export type Maybe<T> = T | null;
 
 type Scalars = {
     ID: string;
@@ -29,24 +29,66 @@ export type MyProfileType = {
   }
 }
 
-export type OneTeamType = {
-  team: {
+export type OneTeamFromNameType = {
+  teamFromName: {
     id: Scalars['ID'];
     name: Scalars['String'];
+    teamBoard: {
+      introduction: Scalars['String'];
+      joinCount: Scalars['Int'];
+      coach: {
+        nickname: Scalars['String'];
+      }
+    }
   }
 }
 
-export type OneTeamVars = {
+export type OneTeamFromIdType = {
+  teamFromId: {
+    id: Scalars['ID'];
+    name: Scalars['String'];
+    teamBoard: {
+      introduction: Scalars['String'];
+      joinCount: Scalars["Int"];
+      coach: {
+        nickname: Scalars['String'];
+      }
+    }
+    schedules: {
+      edges:  Maybe<Array<ScheduleType>>;
+    }
+    trainings: {
+      edges: Maybe<Array<TrainingType>>;
+    }
+  }
+}
+
+export type TeamVars = {
   name: Scalars['String'];
   password: Scalars['String'];
 }
 
+export type TeamBoardType = {
+  node: {
+    id: Scalars['ID'];
+    introduction: Scalars['String'];
+    joinCount: Scalars['Int'];
+    coach: {
+      nickname: Scalars['String'];
+    }
+    team: {
+      id: Scalars['ID'];
+      name: Scalars['String'];
+    }
+  }
+}
 
-type TrainingType = {
+export type TrainingType = {
     node: {
         id: Scalars['ID'];
         title: Scalars['String'];
         count: Scalars['Int'];
+        load: Scalars['Int'];
         distance: Scalars['Int'];
         description: Scalars['String'];
         iconNumber: Scalars['Int']
@@ -57,15 +99,19 @@ type TrainingType = {
 
 export type ScheduleType = {
     node: {
+      id: Scalars['ID'];
       date: Scalars['Date'];
       trainingSchedule: {
         id: Scalars['ID'];
         title: Scalars['String'];
         count: Scalars['Int'];
+        load: Scalars['Int'];
         distance: Scalars['Int'];
         description: Scalars['String'];
         iconNumber: Scalars['Int'];
       };
+      finishedMember: Scalars['String'];
+      finishedCount: Scalars['Int'];
     };
   }
 
@@ -73,8 +119,15 @@ export type ScheduleType = {
     training: {
       title: Scalars['String'];
       count: Scalars['Int'];
+      load: Scalars['Int'];
       distance: Scalars['Int'];
       description: Scalars['String'];
+    }
+  }
+
+  export type AllTeamBoardType = {
+    allTeamBoard: {
+      edges: Maybe<Array<TeamBoardType>>;
     }
   }
 

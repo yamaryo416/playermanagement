@@ -15,7 +15,7 @@ export const CalendarFirstTd: VFC<Props> = (props) => {
 
 const TodayTd = styled.td `
     width: 60px;
-    color: #ecc94b;
+    color: #dd6b20;
 `;
 
 const NotTodayTd = styled.td`

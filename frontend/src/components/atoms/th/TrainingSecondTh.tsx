@@ -5,12 +5,13 @@ type Props = {
     children: ReactNode
 }
 
-export const CustomSecondTh: VFC<Props> = (props) => {
+export const TrainingSecondTh: VFC<Props> = (props) => {
     const { children } = props
 
     return <STh>{children}</STh>
 }
 
 const STh = styled.th`
-    padding-left: 5px;
+    width: 40px;
+    padding-right: 20px;
 `

@@ -2,12 +2,21 @@ import { Button } from "@chakra-ui/button"
 import { ReactNode, VFC } from "react"
 
 type Props = {
+    disabled: boolean;
     children: ReactNode;
 }
 
 export const PrimaryButton: VFC<Props> = (props) => {
-    const { children } = props
+    const { disabled, children } = props
     return (
-        <Button bg="gray.500">{children}</Button>
+        <Button
+            disabled={disabled}
+            type="submit"
+            bg="blue.500"
+            px={5}
+            color="white"
+         >
+            {children}
+        </Button>
     )
 }

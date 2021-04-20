@@ -1,10 +1,12 @@
-import { useMutation } from "@apollo/client"
+import { useLazyQuery, useMutation } from "@apollo/client"
 import moment from "moment"
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useCallback, useState } from "react"
 import { useRecoilState } from "recoil"
 import { TODAY } from "../constants"
-import { CREATE_MANY_SCHEDULES, CREATE_SINGLE_SCHEDULE, GET_MY_ALL_SCHEDULES } from "../queries"
+import { CREATE_MANY_SCHEDULES, CREATE_SINGLE_SCHEDULE, GET_MY_ALL_SCHEDULES, GET_ONE_DAY_SCHEDULES, UPDATE_SCHEDULE } from "../queries"
 import { scheduleCreateModalState } from "../store/scheduleCreateModalState"
+import { MyAllSchedulesType } from "../types/queriesType"
+import { useCalendar } from "./useCalendar"
 import { useMessage } from "./useMessage"
 
 export const useSchedule = () => {
@@ -14,15 +16,32 @@ export const useSchedule = () => {
     const [startDate, setStartDate] = useState(TODAY)
     const [endDate, setEndDate] = useState(TODAY)
     const [dayOfWeek, setDayOfWeek] = useState("0123456")
+    const [toggleFinish, setToggleFinish] = useState(false) 
+    
     const [scheduleCreateModal, setScheduleCreateModal] = useRecoilState(scheduleCreateModalState)
 
+    const { showMessage } = useMessage()
+    const { oneDay } = useCalendar()
+
+    const [getOneDaySchedulesQuery,
+        { loading: loadingOnedaySchedules ,data: dataOneDaySchedules, }
+    ] = useLazyQuery<MyAllSchedulesType>(GET_ONE_DAY_SCHEDULES, {
+        fetchPolicy: "cache-and-network",
+    })
     const [createSingleScheduleMutation] = useMutation(CREATE_SINGLE_SCHEDULE,{
         refetchQueries: [{ query: GET_MY_ALL_SCHEDULES }]
     })
     const [createManySchedulesMutation] = useMutation(CREATE_MANY_SCHEDULES, {
         refetchQueries: [{ query: GET_MY_ALL_SCHEDULES }]
     })
-    const { showMessage } = useMessage()
+    const [updateScheduleMutation] = useMutation(UPDATE_SCHEDULE, {
+        refetchQueries: [{ 
+            query: GET_ONE_DAY_SCHEDULES,
+            variables: { date: oneDay }
+        }]
+    })
+
+    console.log("use schedule")
 
     const includeWeekDays = (i: number): boolean => dayOfWeek.includes(i.toString())
 
@@ -60,6 +79,26 @@ export const useSchedule = () => {
         }
     }
 
+    const getOneDaySchedules = async (date: any) => {
+        try {
+            await getOneDaySchedulesQuery({
+                variables: { date }
+            })
+        } catch (err) {
+            alert(err)
+        }
+    }
+
+    const updateSchedule = useCallback(async (id: string, userId: string) => {
+        try {
+            await updateScheduleMutation({
+                variables: { id, userId }
+            })
+        } catch (err) {
+            alert(err)
+        }
+    }, [])
+
     return ({ 
         isCreateSingleSchedule,
         trainingSchedule,
@@ -68,8 +107,13 @@ export const useSchedule = () => {
         startDate,
         endDate,
         dayOfWeek,
+        toggleFinish,
+        setToggleFinish,
         setDayOfWeek,
         scheduleCreateModal,
+        loadingOnedaySchedules,
+        dataOneDaySchedules,
+        getOneDaySchedulesQuery,
         includeWeekDays,
         onClickChangeMode,
         onChangeTrainingSchedule,
@@ -80,6 +124,8 @@ export const useSchedule = () => {
         onOpenScheduleCreateModal,
         onCloseScheduleCreateModal,
         createSingleSchedule,
-        createManySchedules
+        createManySchedules,
+        getOneDaySchedules,
+        updateSchedule,
     })
 }

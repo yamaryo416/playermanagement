@@ -1,9 +1,10 @@
 import { useMutation } from '@apollo/client'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 import { CREATE_PROFILE, CREATE_USER, GET_TOKEN } from '../queries'
 import { teamAuthModalState } from '../store/teamAuthModalState'
+import { userAuthModalState } from '../store/userAuthModalState'
 import { useMessage } from './useMessage'
 
 type UserVars = {
@@ -18,6 +19,8 @@ export const useUser = () => {
     const history = useHistory()
     
     const { showMessage } = useMessage()
+
+    const [userAuthModal, setUserAuthModal] = useRecoilState(userAuthModalState)
     const setTeamAuthModal = useSetRecoilState(teamAuthModalState);
 
     const [isLogin, setIsLogin] = useState(true)
@@ -25,12 +28,14 @@ export const useUser = () => {
     const [getToken] = useMutation(GET_TOKEN)
     const [createUser] = useMutation(CREATE_USER)
     const [createMyProfile] = useMutation(CREATE_PROFILE)
-
+    
+    const onOpenUserAuthModal = () => setUserAuthModal(true)
+    const onCloseUserAuthModal = () => setUserAuthModal(false)
     const onClickChangeMode = () => setIsLogin(!isLogin)
    
     const passwordValidation = (password: string, password_confirmation: string) => {
         if (password !== password_confirmation) {
-            throw showMessage({ title: "二つのパスワードが一致しません。", status: "error" })
+            throw new Error("パスワードが一致しません。")
         }
     }
 
@@ -42,16 +47,19 @@ export const useUser = () => {
             localStorage.setItem("token", result.data.tokenAuth.token)
             if (isLogin) {
                 showMessage({ title: "ログインしました！", status: "success" })
+                history.push("/main")
             } else {
                 await createMyProfile({
                     variables: { nickname }
                 })
                 showMessage({ title: "ユーザーを作成しました！！", status: "success" })
                 setTeamAuthModal(true)
+                history.push("/team")
             }
-            history.push("/main")
          } catch (err) {
-            showMessage({ title: err.message, status: "error" })
+            if (err.message.includes("credentials")) {
+                showMessage({ title: "Eメール、もしくはパスワードが間違っています。", status: "error" })
+            }
          }
     }
 
@@ -68,7 +76,9 @@ export const useUser = () => {
                 })
                 login(nickname, email, password)
             } catch(err) {
-                showMessage({ title: err.message, status: "error" })
+              if (err.message.includes("duplicate")) {
+                showMessage({ title: "Eメールは既に使われています。", status: "error" })
+              }
             }
         }
     }
@@ -79,6 +89,14 @@ export const useUser = () => {
         showMessage({ title: "ログアウトしました。", status: "success" })
     }
     
-    return ({ isLogin, onClickChangeMode, loginOrSignup, logout })
+    return ({
+        userAuthModal,
+        isLogin,
+        onOpenUserAuthModal,
+        onCloseUserAuthModal,
+        onClickChangeMode,
+        loginOrSignup,
+        logout
+    })
 }
 

@@ -11,17 +11,19 @@ import { BlackBarbellIcon } from "../../atoms/image/BlackBarbellIcon"
 import { BlackBarbellSquatIcon } from "../../atoms/image/BlackBarbellSquatIcon"
 import { BlackRunningIcon } from "../../atoms/image/BlackRunningIcon"
 import { BlackSquatIcon } from "../../atoms/image/BlackSquatIcon"
+import { TrainingIcon } from "../../molecules/TrainingIcon"
 
 export const TrainingCreateModal:VFC = () => {
     const { 
         title,
         count,
+        load,
         distance,
-        iconNumber,
         description,
         trainingCreateModal,
         onChangeTitle,
         onChangeCount,
+        onChangeLoad,
         onChangeDistance,
         onChangeDescription,
         onChangeIconNumber,
@@ -33,20 +35,13 @@ export const TrainingCreateModal:VFC = () => {
 
     const onChangeIsIconSelect = () => setIsIconSelect(!isIconSelect)
 
-    const icons = [
-        <BlackBarbellIcon />,
-        <BlackBarbellSquatIcon />,
-        <BlackRunningIcon />,
-        <BlackSquatIcon />
-    ]
-
-    const selectIcon =  icons.map((icon, i) => (
-        <WrapItem>
+    const selectIcon = [...Array(4)].map((_, i) => (
+        <WrapItem key={i + 1}>
             <Box textAlign="center">
                 <Box>
-                    {icon}
+                    <TrainingIcon iconNumber={i + 1} color="black" size="50px" />
                 </Box>
-                <input name="icon" type="radio" key={i} value={i + 1}  onChange={onChangeIconNumber} />
+                <input name="icon" type="radio" value={i + 1}  onChange={onChangeIconNumber} />
             </Box>
         </WrapItem>
     ))
@@ -74,17 +69,30 @@ export const TrainingCreateModal:VFC = () => {
                             <Flex>
                                 <HStack spacing={7}>
                                     <FormControl >
-                                        <FormLabel>回数:</FormLabel>
-                                        <Input type="number" value={count} onChange={onChangeCount}/>
+                                        <FormLabel>回数</FormLabel>
+                                        <Flex alignItems="center">
+                                            <Input type="number" value={count} onChange={onChangeCount}/>
+                                            <Text>回</Text>
+                                        </Flex>
+                                    </FormControl>
+                                    <FormControl >
+                                            <FormLabel>負荷</FormLabel>
+                                            <Flex alignItems="center">
+                                                <Input type="number" value={load} onChange={onChangeLoad}/>
+                                                <Text>kg</Text>
+                                            </Flex>
                                     </FormControl>
                                     <FormControl>
-                                        <FormLabel>距離:</FormLabel>
-                                        <Input type="number" value={distance} onChange={onChangeDistance} />
+                                        <FormLabel>距離</FormLabel>
+                                        <Flex alignItems="center">
+                                            <Input type="number" value={distance} onChange={onChangeDistance} />
+                                            <Text>km</Text>
+                                        </Flex>
                                     </FormControl>
                                 </HStack>
                             </Flex>
                             <FormControl>
-                                <FormLabel>説明:</FormLabel>
+                                <FormLabel>説明</FormLabel>
                                 <Input value={description} onChange={onChangeDescription} />
                             </FormControl>
                             <Link onClick={onChangeIsIconSelect}>アイコンを選択する</Link>
@@ -93,7 +101,7 @@ export const TrainingCreateModal:VFC = () => {
                                     {selectIcon}
                                 </Wrap>
                             ) : null}
-                            <Button type="submit">レーニンングを作成する</Button>
+                            <Button type="submit">トレーニンングを作成する</Button>
                         </Stack>
                     </form>
                 </ModalBody>

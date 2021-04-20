@@ -1,28 +1,28 @@
-import React, { memo, VFC } from 'react'
+import { memo, VFC } from 'react'
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from '@chakra-ui/modal'
 import { Box, Link, Stack } from '@chakra-ui/layout'
-import { FormControl, FormLabel } from '@chakra-ui/form-control'
-import { Input } from '@chakra-ui/input'
 import { Formik } from 'formik'
 import { object, string } from 'yup'
-import { Button } from '@chakra-ui/button'
+
 import { useUser } from '../../../hooks/useUser'
-import { useRecoilState } from 'recoil'
-import { userAuthModalState } from '../../../store/userAuthModalState'
 import { UserAuthForm } from '../../molecules/UserAuthForm'
 import { ErrorText } from '../../atoms/text/ErrorText'
 import { SecondaryButton } from '../../atoms/button/SecondaryButton'
+import { PrimaryButton } from '../../atoms/button/PrimaryButton'
 
 export const UserAuthModal: VFC= memo(() => {
 
-    const { isLogin, onClickChangeMode, loginOrSignup } = useUser();
-
-    const [userAuthModal, setUserAuthModal] = useRecoilState(userAuthModalState)
-
-    const onCloseUserAuthModal = () => setUserAuthModal(false)
+    const {
+        userAuthModal,
+        isLogin,
+        onCloseUserAuthModal,
+        onClickChangeMode,
+        loginOrSignup
+    } = useUser();
 
     return (
         <Modal
+            closeOnOverlayClick={false}
             isOpen={userAuthModal}
             onClose={onCloseUserAuthModal}
             autoFocus={false}
@@ -58,38 +58,36 @@ export const UserAuthModal: VFC= memo(() => {
                             <form onSubmit={handleSubmit}>
                                 <Stack spacing={4}>
                                     {!isLogin && (
-                                        <UserAuthForm name="nickname" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.nickname}>
+                                        <UserAuthForm name="nickname" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.nickname} placeholder="トレーニング太郎" >
                                             ニックネーム
                                         </UserAuthForm>
                                     )}
-                                    {touched.nickname && errors.nickname ? (
+                                    {touched.nickname && errors.nickname && (
                                         <ErrorText>{errors.nickname}</ErrorText>
-                                    ): null}
-                                    <UserAuthForm name="email" type="email" handleChange={handleChange} handleBlur={handleBlur} value={values.email}>
+                                    )}
+                                    <UserAuthForm name="email" type="email" handleChange={handleChange} handleBlur={handleBlur} value={values.email} placeholder="training@example.com">
                                         Eメール
                                     </UserAuthForm>
-                                    {touched.email && errors.email ? (
+                                    {touched.email && errors.email && (
                                         <ErrorText>{errors.email}</ErrorText>
-                                    ): null}
-                                    <UserAuthForm name="password" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password}>
+                                    )}
+                                    <UserAuthForm name="password" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password} placeholder="">
                                         パスワード
                                     </UserAuthForm>
-                                    {touched.password && errors.password ? (
+                                    {touched.password && errors.password && (
                                         <ErrorText>{errors.password}</ErrorText>
-                                    ): null}
+                                    )}
                                     {!isLogin && (
-                                        <UserAuthForm name="password_confirmation" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password_confirmation}>
+                                        <UserAuthForm name="password_confirmation" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password_confirmation} placeholder="">
                                             パスワード
                                         </UserAuthForm>
                                     )}
                                     <Box textAlign="center">
-                                        <Button
+                                        <PrimaryButton
                                             disabled={!isValid}
-                                            type="submit"
-                                            bg="blue.500"
-                                            px={5}
-                                            color="white"
-                                        >{isLogin ? 'ログイン' : "ユーザー登録"}</Button>
+                                        >
+                                            {isLogin ? 'ログイン' : "ユーザー登録"}
+                                        </PrimaryButton>
                                     </Box>
                                 </Stack>
                             </form>
@@ -97,7 +95,9 @@ export const UserAuthModal: VFC= memo(() => {
                     </Formik>
                 </ModalBody>
                 <ModalFooter px={4} justifyContent="space-between">
-                    <Link verticalAlign="middle" onClick={onClickChangeMode}>{isLogin ? 'アカウントを持っていない場合はこちら': '既にアカウントを持っている場合はこちら'}</Link>
+                    <Link verticalAlign="middle" onClick={onClickChangeMode} opacity="0.7">
+                        {isLogin ? 'アカウントを持っていない場合はこちら': '既にアカウントを持っている場合はこちら'}
+                    </Link>
                     <SecondaryButton onClick={onCloseUserAuthModal}>閉じる</SecondaryButton>
                 </ModalFooter>
             </ModalContent>
