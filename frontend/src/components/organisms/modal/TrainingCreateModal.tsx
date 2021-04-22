@@ -1,39 +1,38 @@
 import { Button } from "@chakra-ui/button"
 import { FormControl, FormLabel } from "@chakra-ui/form-control"
-import { Img } from "@chakra-ui/image"
 import { Input } from "@chakra-ui/input"
 import { Box, Flex, HStack, Link, Stack, Text, Wrap, WrapItem } from "@chakra-ui/layout"
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from "@chakra-ui/modal"
-import { Select } from "@chakra-ui/select"
-import { useState, VFC } from "react"
-import { useTraining } from "../../../hooks/useTraining"
-import { BlackBarbellIcon } from "../../atoms/image/BlackBarbellIcon"
-import { BlackBarbellSquatIcon } from "../../atoms/image/BlackBarbellSquatIcon"
-import { BlackRunningIcon } from "../../atoms/image/BlackRunningIcon"
-import { BlackSquatIcon } from "../../atoms/image/BlackSquatIcon"
+import { VFC } from "react"
+import { useControllModal } from "../../../hooks/useControllModal"
+import { useCreateTraining } from "../../../hooks/queries/useCreateTraining"
+import { useTrainingState } from "../../../hooks/useTrainingState"
 import { TrainingIcon } from "../../molecules/TrainingIcon"
 
 export const TrainingCreateModal:VFC = () => {
+    const { createTraining } = useCreateTraining()
+    const {
+        trainingCreateModal,
+        onCloseTrainingCreateModal
+    } = useControllModal()
     const { 
         title,
         count,
         load,
         distance,
+        iconNumber,
         description,
-        trainingCreateModal,
+        isIconSelect,
         onChangeTitle,
         onChangeCount,
         onChangeLoad,
         onChangeDistance,
         onChangeDescription,
         onChangeIconNumber,
-        onCloseTrainingCreateModal,
-        createTraining
-    } = useTraining()
+        onChangeIsIconSelect,
+        resetState
+    } = useTrainingState()
 
-    const [isIconSelect, setIsIconSelect] = useState(false)
-
-    const onChangeIsIconSelect = () => setIsIconSelect(!isIconSelect)
 
     const selectIcon = [...Array(4)].map((_, i) => (
         <WrapItem key={i + 1}>
@@ -59,7 +58,8 @@ export const TrainingCreateModal:VFC = () => {
                 <ModalBody>
                     <form onSubmit={(e) => {
                         e.preventDefault()
-                        createTraining()
+                        createTraining(title, count, load, distance, description, iconNumber)
+                        resetState()
                     }}>
                         <Stack spacing={4}>
                             <FormControl>

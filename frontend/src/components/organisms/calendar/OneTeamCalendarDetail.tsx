@@ -1,12 +1,13 @@
+import { memo, VFC } from "react";
 import { Box, Flex, Heading, Text } from "@chakra-ui/layout";
 import moment from "moment";
-import { VFC } from "react";
+import { useRecoilValue } from "recoil";
+
 import { TODAY } from "../../../constants";
 import { useCalendar } from "../../../hooks/useCalendar";
-import { ScheduleType } from "../../../types/queriesType";
+import { scheduleOneDayState } from "../../../store/scheduleOneDayState";
+import { Maybe, ScheduleType } from "../../../types/queriesType";
 import { TrainingIcon } from "../../molecules/TrainingIcon";
-
-type Maybe<T> = T | null;
 
 type Props = {
     schedules: {
@@ -14,11 +15,14 @@ type Props = {
     } | undefined;
 }
 
-export const OneTeamCalendarDetail: VFC<Props> = (props) => {
+export const OneTeamCalendarDetail: VFC<Props> = memo((props) => {
     const { schedules } = props
 
-    const { oneDay, scheduleContent } = useCalendar()
-    
+    const { scheduleContent } = useCalendar()
+
+    const oneDay = useRecoilValue(scheduleOneDayState)
+
+    console.log("oneTeamCalendarDetail")
     
     return (
         <Box textAlign="center">
@@ -39,4 +43,4 @@ export const OneTeamCalendarDetail: VFC<Props> = (props) => {
          </Box>
     </Box>
     )
-}
+})

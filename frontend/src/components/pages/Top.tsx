@@ -1,5 +1,5 @@
-import { memo, useState, VFC } from 'react'
-import { useDisclosure } from '@chakra-ui/hooks'
+import { memo, VFC } from 'react'
+
 import { UserAuthModal } from '../organisms/modal/UserAuthModal'
 import { HeaderForGeneralUser } from '../templates/HeaderForGeneralUser';
 

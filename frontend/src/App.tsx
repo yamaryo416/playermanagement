@@ -1,6 +1,3 @@
-import './App.css';
-
-import React from 'react';
 import { ApolloProvider } from '@apollo/react-hooks'
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -31,7 +28,6 @@ const client = new ApolloClient({
 })
 
 const App = () => {
-  console.log("app")
   return (
     <ApolloProvider client={client}>
       <RecoilRoot>

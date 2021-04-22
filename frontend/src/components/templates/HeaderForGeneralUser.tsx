@@ -1,12 +1,11 @@
 import { memo, VFC } from 'react'
 import { Heading, Link } from '@chakra-ui/layout'
 
-import { useUser } from '../../hooks/useUser'
 import { HeaderLayout } from '../organisms/layout/HeaderLayout'
+import { useControllModal } from '../../hooks/useControllModal'
 
 export const HeaderForGeneralUser: VFC = memo(() => {
-    
-    const { onOpenUserAuthModal } = useUser()
+    const { onOpenUserAuthModal } = useControllModal()
 
     return (
         <HeaderLayout>
@@ -17,4 +16,3 @@ export const HeaderForGeneralUser: VFC = memo(() => {
         </HeaderLayout>
     )
 })
-

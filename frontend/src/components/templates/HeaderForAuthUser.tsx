@@ -1,12 +1,12 @@
-import { Box, Heading, Link, Text } from '@chakra-ui/layout';
-import React, { memo, VFC } from 'react'
+import { memo, VFC } from 'react'
+import { Box, Heading } from '@chakra-ui/layout';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-
-import { useUser } from '../../hooks/useUser';
-import { HeaderLayout } from '../organisms/layout/HeaderLayout'
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
 import GroupIcon from '@material-ui/icons/Group';
-import { useTeam } from '../../hooks/useTeam';
+
+import { HeaderLayout } from '../organisms/layout/HeaderLayout'
+import { useUserAuth } from '../../hooks/useUserAuth';
+import { useControllModal } from '../../hooks/useControllModal';
 
 type Props = {
     nickname: string | undefined;
@@ -16,8 +16,8 @@ type Props = {
 export const HeaderForAuthUser: VFC<Props> = memo((props) => {
     const { nickname, teamname } = props;
 
-    const { logout } = useUser()
-    const { onOpenTeamAuthModal } = useTeam()
+    const { onOpenTeamAuthModal } = useControllModal()
+    const { logout } = useUserAuth()
 
     return (
         <HeaderLayout>

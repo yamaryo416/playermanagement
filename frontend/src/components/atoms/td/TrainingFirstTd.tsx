@@ -12,6 +12,7 @@ export const TrainingFirstTd: VFC<Props> = (props) => {
 
     if (isClick) return <STd onClick={onClick}>{children}</STd>
     else return <STd>{children}</STd>
+
 }
 
 const STd = styled.td `

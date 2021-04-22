@@ -1,20 +1,26 @@
 import { Box, Heading, Stack, Text } from "@chakra-ui/layout";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from "@chakra-ui/modal";
-import { Spinner } from "@chakra-ui/spinner";
-import { Dispatch, VFC } from "react";
-import { useTraining } from "../../../hooks/useTraining";
+import { useCallback, VFC } from "react";
+import { useRecoilState } from "recoil";
+import { trainingSelectedState } from "../../../store/trainingSelectedState";
 import { SingleTrainingType } from "../../../types/queriesType";
 
 export const TrainingDetailModal: VFC = () => {
-    const {
-        trainingSelected,
-        trainingDetailModal,
-        onCloseTrainingDetailModal,
-    } = useTraining()
+
+    const [trainingSelected, setTrainningSelected] = useRecoilState(trainingSelectedState)
+
+    const onCloseTrainingDetailModal = useCallback(() => setTrainningSelected({
+        title: "",
+        count: null,
+        load: null,
+        distance: null,
+        description: "",
+        isModalOpen: false,
+    }), [trainingSelected])
 
     return (
         <Modal
-            isOpen={trainingDetailModal}
+            isOpen={trainingSelected.isModalOpen}
             onClose={onCloseTrainingDetailModal}
             autoFocus={false}
         >

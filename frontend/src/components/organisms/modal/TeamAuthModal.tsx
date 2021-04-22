@@ -1,44 +1,34 @@
-import { useState, VFC } from 'react'
+import { memo, useCallback, useState, VFC } from 'react'
 import { Button } from '@chakra-ui/button'
-import { FormControl, FormLabel } from '@chakra-ui/form-control'
-import { Input } from '@chakra-ui/input'
-import { Box, Flex, Heading, Link, Stack, Text } from '@chakra-ui/layout'
+import { Box, Heading, Link, Stack, Text } from '@chakra-ui/layout'
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from '@chakra-ui/modal'
-import { useRecoilState } from 'recoil'
 import { Formik } from 'formik'
 import { object, string } from "yup"
-
-import { useTeam } from '../../../hooks/useTeam'
-import { teamAuthModalState } from '../../../store/teamAuthModalState'
-import { PrimaryButton } from '../../atoms/button/PrimaryButton'
-import { UserAuthForm } from '../../molecules/UserAuthForm'
-import { ErrorText } from '../../atoms/text/ErrorText'
-import { useMessage } from '../../../hooks/useMessage'
-import { SecondaryButton } from '../../atoms/button/SecondaryButton'
 import { Checkbox } from '@chakra-ui/checkbox'
-import { ConfirmTeamJoinModal } from './ConfirmTeamJoinModal'
-import { Spinner } from '@chakra-ui/spinner'
 
-export const TeamAuthModal: VFC = () => {
+import { useTeamAuth } from '../../../hooks/useTeamAuth'
+import { PrimaryButton } from '../../atoms/button/PrimaryButton'
+import { CustomForm } from '../../molecules/CustomForm'
+import { ErrorText } from '../../atoms/text/ErrorText'
+import { SecondaryButton } from '../../atoms/button/SecondaryButton'
+import { useControllModal } from '../../../hooks/useControllModal'
+
+export const TeamAuthModal: VFC = memo(() => {
+    const [isJoin, setIsJoin] = useState(true)
+    const [isAnyoneJoin, setIsAnyoneJoin] = useState(true)
+    const [isSearch, setIsSearch] = useState(false)
+
+    const { teamAuthModal, onCloseTeamAuthModal } = useControllModal()
     const { 
-        isJoin,
-        isSearch,
-        setIsSearch,
-        isAnyoneJoin,
-        loadingOneTeamFromName,
         dataOneTeamFromName,
-        teamAuthModal,
-        setTeamAuthModal,
-        onClickChangeMode,
-        onCloseTeamAuthModal,
-        onCloseIsSearch,
-        onChangeIsAnyoneJoin,
         createTeam,
         searchTeam,
         joinTeam
-    } = useTeam()
+    } = useTeamAuth()
 
-    const { showMessage } = useMessage()
+    const onCloseIsSearch = useCallback(() => setIsSearch(false), [])
+    const onClickChangeMode = useCallback(() => setIsJoin(!isJoin), [isJoin])
+    const onChangeIsAnyoneJoin = useCallback(() => setIsAnyoneJoin(!isAnyoneJoin), [])
 
     return (
         <>
@@ -66,7 +56,7 @@ export const TeamAuthModal: VFC = () => {
                                         <Text py={10} fontWeight="bold">チーム名: {dataOneTeamFromName.teamFromName.name}</Text>
                                         <Button bg="blue.500" px={5} color="white"  onClick={() => {
                                             joinTeam(dataOneTeamFromName.teamFromName.id)
-                                            setTeamAuthModal(false)
+                                            onCloseTeamAuthModal()
                                         }}>加入する</Button>
                                     </>
                                 ):(
@@ -113,18 +103,18 @@ export const TeamAuthModal: VFC = () => {
                                         }) => (
                                             <form onSubmit={handleSubmit}>
                                                 <Stack spacing={4}>
-                                                    <UserAuthForm name="name" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.name} placeholder="〇〇チーム" >
+                                                    <CustomForm name="name" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.name} placeholder="〇〇チーム" >
                                                         チーム名
-                                                    </UserAuthForm> 
+                                                    </CustomForm> 
                                                     {touched.name && errors.name && (
                                                         <ErrorText>{errors.name}</ErrorText>
                                                     )}
                                                     <Checkbox isChecked={!isAnyoneJoin} onChange={onChangeIsAnyoneJoin}>{isJoin? "パスワードが必要なため入力する" : "パスワードを設定し、参加を制限する"}</Checkbox>
                                                     {!isAnyoneJoin && (
                                                         <>
-                                                        <UserAuthForm name="password" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.password} placeholder="0000" >
+                                                        <CustomForm name="password" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.password} placeholder="0000" >
                                                         パスワード
-                                                        </UserAuthForm> 
+                                                        </CustomForm> 
                                                         {touched.password && errors.password && (
                                                             <ErrorText>{errors.password}</ErrorText>
                                                         )}
@@ -152,4 +142,4 @@ export const TeamAuthModal: VFC = () => {
             </Modal>
         </>
     )
-}
+})

@@ -1,8 +1,9 @@
+import { VFC } from "react";
 import { Button } from "@chakra-ui/button";
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout";
-import { VFC } from "react";
 import { useHistory } from "react-router-dom";
-import { useTeam } from "../../../hooks/useTeam";
+
+import { useControllModal } from "../../../hooks/useControllModal";
 
 type Props = {
     teamName: string | undefined;
@@ -12,8 +13,8 @@ export const TeamDetailMenubar: VFC<Props> = (props) => {
     const { teamName } = props;
 
     const history = useHistory()
-    
-    const { onOpenConfrimTeamJoinModal } = useTeam()
+
+    const { onOpenConfrimTeamJoinModal } = useControllModal()
     
     return (
         <Flex justifyContent="space-between" mb={10}>

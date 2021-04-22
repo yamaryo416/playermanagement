@@ -167,9 +167,9 @@ class UpdateTeamBoardMutation(relay.ClientIDMutation):
 class CreateTrainingMutation(relay.ClientIDMutation):
     class Input:
         title = graphene.String(required=True)
-        count = graphene.Int()
-        load = graphene.Int()
-        distance = graphene.Int()
+        count = graphene.Int(null=True)
+        load = graphene.Int(null=True)
+        distance = graphene.Int(null=True)
         description = graphene.String()
         icon_number = graphene.Int()
 

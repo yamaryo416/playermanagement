@@ -1,15 +1,13 @@
 import { VFC } from "react";
-import { useQuery } from "@apollo/client";
 import { Button } from "@chakra-ui/button";
 import { Input } from "@chakra-ui/input";
 import { Box, Flex, Heading, Text } from "@chakra-ui/layout";
 import { Spinner } from "@chakra-ui/spinner";
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
-import { useTeam } from "../../../hooks/useTeam";
-import { GET_MY_TEAM_POSTS } from "../../../queries";
-import { MyTeamPostsType } from "../../../types/queriesType";
 import { SpeechBallon } from "../../molecules/SpeechBallon";
+import { useCreatePost } from "../../../hooks/queries/useCreatePost";
+import { useGetMyTeamPosts } from "../../../hooks/queries/useGetMyTeamPosts";
 
 type Props = {
     myId: string | undefined;
@@ -18,14 +16,17 @@ type Props = {
 export const TeamBoardPost: VFC<Props> = (props) => {
     const { myId } = props;
 
-    const { text, onChangeText, createPost } = useTeam()
+    const {
+        text,
+        onChangeText,
+        createPost,
+    } = useCreatePost()
 
-    const { 
-        loading: loadingMyTeamPosts,
-        data: dataMyTeamPosts
-    } = useQuery<MyTeamPostsType>(GET_MY_TEAM_POSTS, {
-        fetchPolicy: "cache-and-network",
-    })
+    const {
+        loadingMyTeamPosts,
+        dataMyTeamPosts,
+        errorMyTeamPosts,
+    } = useGetMyTeamPosts()
 
     if (loadingMyTeamPosts) return <Spinner />
     return(

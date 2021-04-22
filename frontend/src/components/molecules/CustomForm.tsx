@@ -18,7 +18,7 @@ type Props = {
 }
 
 
-export const UserAuthForm: VFC<Props> = (props) => {
+export const CustomForm: VFC<Props> = (props) => {
     const { name, type, handleChange, handleBlur, value, placeholder  , children } = props
     return (
         <FormControl>

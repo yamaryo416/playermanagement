@@ -1,9 +1,11 @@
+import { VFC } from "react";
 import { Button } from "@chakra-ui/button";
 import { Heading, Text } from "@chakra-ui/layout";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from "@chakra-ui/modal";
-import { VFC } from "react";
-import { useTeam } from "../../../hooks/useTeam";
+
+import { useTeamAuth } from "../../../hooks/useTeamAuth";
 import { SecondaryButton } from "../../atoms/button/SecondaryButton";
+import { useControllModal } from "../../../hooks/useControllModal";
 
 type Props = {
     teamName: string | undefined;
@@ -13,7 +15,9 @@ type Props = {
 export const ConfirmTeamJoinModal: VFC<Props> = (props) => {
     const { teamName, teamId } = props;
 
-    const { confirmTeamJoinModal, onCloseConfrimTeamJoinModal, joinTeam } = useTeam()
+    const { joinTeam } = useTeamAuth()
+
+    const { confirmTeamJoinModal, onCloseConfrimTeamJoinModal } = useControllModal()
 
     return (
         <Modal

@@ -1,7 +1,6 @@
-import { Box, Text, WrapItem } from "@chakra-ui/layout"
-import { ReactNode, VFC } from "react"
+import { memo, VFC } from "react"
+import { Text, WrapItem } from "@chakra-ui/layout"
 import { useHistory } from "react-router-dom"
-import { useTeam } from "../../../hooks/useTeam"
 
 type Props = {
     key: string;
@@ -12,11 +11,10 @@ type Props = {
     joinCount: number;
 }
 
-export const TeamCard: VFC<Props> = (props) => {
-    const history = useHistory()
+export const TeamCard: VFC<Props> = memo((props) => {
     const { key, teamId, teamName, coachName, introduction, joinCount } = props;
 
-    const { onChangeTeamDetail, getOneTeamFromIdQuery } = useTeam()
+    const history = useHistory()
 
     return (
         <WrapItem
@@ -38,4 +36,4 @@ export const TeamCard: VFC<Props> = (props) => {
             <Text>{introduction ? introduction : "記載なし"}</Text>
         </WrapItem>
     )
-}
+})

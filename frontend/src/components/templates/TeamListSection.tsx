@@ -1,17 +1,18 @@
-import { useQuery } from "@apollo/client";
-import { Box, Heading, Text, Wrap, WrapItem } from "@chakra-ui/layout";
-import { Spinner } from "@chakra-ui/spinner";
 import { VFC } from "react";
-import { GET_ALL_TEAM_BOARD } from "../../queries";
-import { AllTeamBoardType } from "../../types/queriesType";
+import { Box, Heading, Wrap } from "@chakra-ui/layout";
+import { Spinner } from "@chakra-ui/spinner";
+
 import { TeamCard } from "../organisms/layout/TeamCard";
+import { useGetAllTeamBoard } from "../../hooks/queries/useGetAllTeamBoard";
 
 export const TeamListSection : VFC = () => {
-    const { loading: loadingAllTeamBoard, data: dataAllTeamBoard } = useQuery<AllTeamBoardType>(GET_ALL_TEAM_BOARD, {
-        fetchPolicy: "cache-and-network",
-    })
+    const { loadingAllTeamBoard, dataAllTeamBoard, errorAllTeamBoard } = useGetAllTeamBoard()
     
     if (loadingAllTeamBoard) return <Spinner />
+    else if (errorAllTeamBoard) return(
+        <Heading>Error: {errorAllTeamBoard.message}</Heading>
+    )
+
     return (
         <Box mt={10}>
             <Heading as="h4" fontSize="25px" mb={10}>おすすめのチーム</Heading>

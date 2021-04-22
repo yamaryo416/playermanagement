@@ -8,7 +8,11 @@ type Props = {
 export const TrainingTr: VFC<Props> = (props) => {
     const { children } = props
 
-    return <STr>{children}</STr>
+    return (
+        <>
+            <STr>{children}</STr>
+        </>
+    )
 }
 
 const STr = styled.tr`

@@ -1,7 +1,5 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/layout"
 import { VFC } from "react"
-import { useTraining } from "../../hooks/useTraining"
-import { MyTrainingsType } from "../../types/queriesType"
 import { TrainingFirstTh } from "../atoms/th/TrainingFirstTh"
 import { TrainingSecondTd } from "../atoms/td/TrainingSecondTd"
 import { CustomTable } from "../atoms/table/CustomTable"
@@ -13,13 +11,15 @@ import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import { TrainingCreateModal } from "../organisms/modal/TrainingCreateModal"
 import { ScheduleCreateModal } from "../organisms/modal/ScheduleCreateModal"
 import { Spinner } from "@chakra-ui/spinner"
-import { useQuery } from "@apollo/client"
-import { GET_MY_TRAININGS } from "../../queries"
 import { TrainingTr } from "../atoms/tr/TrainingTr"
 import { TrainingFirstTd } from "../atoms/td/TrainingFirstTd"
 import { TrainingIcon } from "../molecules/TrainingIcon"
 import { TrainingSecondTh } from "../atoms/th/TrainingSecondTh"
 import { TrainingDetailModal } from "../organisms/modal/TrainingDetailModal"
+import { useSetRecoilState } from "recoil"
+import { trainingSelectedState } from "../../store/trainingSelectedState"
+import { useUpdateTrainingNice } from "../../hooks/queries/useUpdateTrainingNice"
+import { useGetMyTrainings } from "../../hooks/queries/useGetMyTrainings"
 
 type Props = {
     myId: string | undefined;
@@ -28,11 +28,10 @@ type Props = {
 export const MyTeamTrainingSection:VFC<Props> = (props) => {
     const { myId } = props
 
-    const { loading: loadingMyTrainings, data: dataMyTrainings, error: errorMyTrainings } = useQuery<MyTrainingsType>(GET_MY_TRAININGS, {
-        fetchPolicy: "cache-and-network",
-    })
+    const { updateTrainingNice } = useUpdateTrainingNice()
+    const { loadingMyTrainings, dataMyTrainings, errorMyTrainings } = useGetMyTrainings()
 
-    const { onClickSelectedTraining, updateTrainingNice } = useTraining()
+    const setTrainingSelected = useSetRecoilState(trainingSelectedState)
     
     if (loadingMyTrainings) return <Spinner />
     else if (errorMyTrainings) return (
@@ -53,30 +52,33 @@ export const MyTeamTrainingSection:VFC<Props> = (props) => {
                 </CustomThead>
                 <CustomTbody>
                     {dataMyTrainings?.myTrainings.edges?.map((train) => (
-                        <TrainingTr>
-                            <Flex alignItems="center">
-                                <TrainingFirstTd isClick={true} onClick={() => onClickSelectedTraining(
-                                    train.node.title,
-                                    train.node.count,
-                                    train.node.load,
-                                    train.node.distance,
-                                    train.node.description
-                                )}>{train.node.title}</TrainingFirstTd>
-                                <TrainingSecondTd>{train.node.count}</TrainingSecondTd>
-                                <TrainingSecondTd>{train.node.load}</TrainingSecondTd>
-                                <TrainingSecondTd>{train.node.distance}</TrainingSecondTd>
-                                <Flex>
-                                    {train.node.niceUser.includes(myId!) ?
-                                        <ThumbUpIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> :
-                                        <ThumbUpOutlinedIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> 
-                                    }
-                                    <Text pl={2}>{train.node.niceCount}</Text>
+                        <Box key={train.node.id}>
+                            <TrainingTr>
+                                <Flex alignItems="center">
+                                    <TrainingFirstTd isClick={true} onClick={() => setTrainingSelected({
+                                        title: train.node.title,
+                                        count: train.node.count,
+                                        load: train.node.load,
+                                        distance: train.node.distance,
+                                        description: train.node.description,
+                                        isModalOpen: true
+                                    })}>{train.node.title}</TrainingFirstTd>
+                                    <TrainingSecondTd>{train.node.count}</TrainingSecondTd>
+                                    <TrainingSecondTd>{train.node.load}</TrainingSecondTd>
+                                    <TrainingSecondTd>{train.node.distance}</TrainingSecondTd>
+                                    <Flex>
+                                        {train.node.niceUser.includes(myId!) ?
+                                            <ThumbUpIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> :
+                                            <ThumbUpOutlinedIcon onClick={() => updateTrainingNice(train.node.id, myId!)} /> 
+                                        }
+                                        <Text pl={2}>{train.node.niceCount}</Text>
+                                    </Flex>
+                                    <Box pl={3}>
+                                        <TrainingIcon iconNumber={train.node.iconNumber} color="white" size="50px" />
+                                    </Box>
                                 </Flex>
-                                <Box pl={3}>
-                                    <TrainingIcon iconNumber={train.node.iconNumber} color="white" size="50px" />
-                                </Box>
-                            </Flex>
-                        </TrainingTr>
+                            </TrainingTr>
+                        </Box>
                     ))}
                 </CustomTbody>
              </CustomTable>

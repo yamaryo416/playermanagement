@@ -1,9 +1,11 @@
+import { memo, useCallback, useEffect, useState, VFC } from "react";
 import { Box, Link, Text, Wrap, WrapItem } from "@chakra-ui/layout";
 import moment, { Moment } from "moment";
-import { useEffect, useState, VFC } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+
 import { TODAY } from "../../../constants";
-import { useCalendar } from "../../../hooks/useCalendar";
-import { ScheduleType } from "../../../types/queriesType";
+import { scheduleOneDayState } from "../../../store/scheduleOneDayState";
+import { Maybe, ScheduleType } from "../../../types/queriesType";
 import { CustomTable } from "../../atoms/table/CustomTable";
 import { CustomTbody } from "../../atoms/tbody/CustomTbody";
 import { CalendarFirstTd } from "../../atoms/td/CalendarFirstTd";
@@ -13,10 +15,7 @@ import { CalendarSecondTh } from "../../atoms/th/CalendarSecondTh";
 import { CustomThead } from "../../atoms/thead/CustomThead";
 import { CalendarTr } from "../../atoms/tr/CalendarTr";
 import { TrainingIcon } from "../../molecules/TrainingIcon";
-import { SectionCard } from "../layout/SectionCard";
-
-
-type Maybe<T> = T | null;
+import { calendarDateState } from "../../../store/calendarDateState";
 
 type Props = {
     schedules: {
@@ -24,19 +23,22 @@ type Props = {
     } | undefined;
 }
 
-
-export const Calendar: VFC<Props> = (props) => {
+export const Calendar: VFC<Props> = memo((props) => {
     const { schedules } = props
-    const { firstDate, setOneDay } = useCalendar()
+
+    const calendarDate = useRecoilValue(calendarDateState)
+    const setOneDay = useSetRecoilState(scheduleOneDayState)
 
     const [isIconMode, setIsIconMode] = useState(true)
     const [datesOfWeek, setDatesOfWeek] = useState<Moment[]>([])
+
+    const onChangeIsIconMode = useCallback(() => setIsIconMode(!isIconMode), [isIconMode])
 
     const weekSchedules = (d: moment.Moment) => 
         schedules?.edges?.
         filter(sche => sche.node.date === d.format("YYYY-MM-DD").toString()).
         map((sche) => (
-        <WrapItem>
+        <WrapItem key={sche.node.id}>
             {isIconMode ? (
                 <TrainingIcon iconNumber={sche.node.trainingSchedule.iconNumber} color="white" size="50px" />
             ): (
@@ -55,18 +57,16 @@ export const Calendar: VFC<Props> = (props) => {
         )
     )
 
-    const onChangeIsIconMode = () => setIsIconMode(!isIconMode)
-
     useEffect(() => {
         const dates: Moment[] = []
         let addDate = 0;
         while (addDate < 7) {
-            const date = moment(firstDate).add(addDate, 'd')
+            const date = moment(calendarDate.firstDate).add(addDate, 'd')
             dates.push(date)
             addDate++
         }
         setDatesOfWeek(dates)
-    }, [firstDate])
+    }, [calendarDate.firstDate])
 
     return (
         <Box pt={3}>
@@ -83,24 +83,26 @@ export const Calendar: VFC<Props> = (props) => {
                     </tr>
                 </CustomThead>
                 <CustomTbody>
-                    {datesOfWeek.map((d) => (
-                        <CalendarTr 
-                            isToday={d.format("YYYY-MM-DD") === TODAY}
-                            onClick={() => {
-                            setOneDay(d.format("YYYY-MM-DD"))
-                        }}>
-                            <CalendarFirstTd isToday={d.format("YYYY-MM-DD") === TODAY}>
-                                {moment(firstDate).get("M") + 1 === d.get("M") ? d.format("M月D日") : d.format("D日")}
-                            </CalendarFirstTd>
-                            <CalendarSecondTd>
-                                <Wrap>
-                                    {weekSchedules(d)}
-                                </Wrap>
-                            </CalendarSecondTd>
-                        </CalendarTr>
+                    {datesOfWeek.map((d, i) => (
+                        <div key={d.format("YYYY-MM-DD")}>
+                            <CalendarTr 
+                                isToday={d.format("YYYY-MM-DD") === TODAY}
+                                onClick={() => {
+                                setOneDay(d.format("YYYY-MM-DD"))
+                            }}>
+                                <CalendarFirstTd isToday={d.format("YYYY-MM-DD") === TODAY}>
+                                    {moment(calendarDate.firstDate).get("M") + 1 === d.get("M") ? d.format("M月D日") : d.format("D日")}
+                                </CalendarFirstTd>
+                                <CalendarSecondTd>
+                                    <Wrap>
+                                        {weekSchedules(d)}
+                                    </Wrap>
+                                </CalendarSecondTd>
+                            </CalendarTr>
+                        </div>
                     ))}
                 </CustomTbody>
             </CustomTable>
         </Box>
     )
-}
+})

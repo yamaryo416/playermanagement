@@ -1,24 +1,23 @@
-import { memo, VFC } from 'react'
+import { memo, useCallback, useState, VFC } from 'react'
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from '@chakra-ui/modal'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { Formik } from 'formik'
 import { object, string } from 'yup'
 
-import { useUser } from '../../../hooks/useUser'
-import { UserAuthForm } from '../../molecules/UserAuthForm'
+import { CustomForm } from '../../molecules/CustomForm'
 import { ErrorText } from '../../atoms/text/ErrorText'
 import { SecondaryButton } from '../../atoms/button/SecondaryButton'
 import { PrimaryButton } from '../../atoms/button/PrimaryButton'
+import { useUserAuth } from '../../../hooks/useUserAuth'
+import { useControllModal } from '../../../hooks/useControllModal'
 
-export const UserAuthModal: VFC= memo(() => {
+export const UserAuthModal: VFC = memo(() => {
+    const [isLogin, setIsLogin] = useState(true)
 
-    const {
-        userAuthModal,
-        isLogin,
-        onCloseUserAuthModal,
-        onClickChangeMode,
-        loginOrSignup
-    } = useUser();
+    const { userAuthModal, onCloseUserAuthModal } = useControllModal()
+    const { signup, login } = useUserAuth()
+
+    const onClickChangeMode = useCallback(() => setIsLogin(!isLogin), [isLogin])
 
     return (
         <Modal
@@ -37,8 +36,8 @@ export const UserAuthModal: VFC= memo(() => {
                     <Formik
                         initialErrors={{ email: "required" }}
                         initialValues={{ nickname: "名無し", email: "", password: "", password_confirmation: "" }}
-                        onSubmit={async (values) => {
-                            loginOrSignup(values)
+                        onSubmit={(values) => {
+                            isLogin ? login(values.email, values.password) : signup(values)
                         }}
                         validationSchema={object().shape({
                             nickname: string().required("1文字以上入力してください。"),
@@ -58,29 +57,29 @@ export const UserAuthModal: VFC= memo(() => {
                             <form onSubmit={handleSubmit}>
                                 <Stack spacing={4}>
                                     {!isLogin && (
-                                        <UserAuthForm name="nickname" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.nickname} placeholder="トレーニング太郎" >
+                                        <CustomForm name="nickname" type="text" handleChange={handleChange} handleBlur={handleBlur} value={values.nickname} placeholder="トレーニング太郎" >
                                             ニックネーム
-                                        </UserAuthForm>
+                                        </CustomForm>
                                     )}
                                     {touched.nickname && errors.nickname && (
                                         <ErrorText>{errors.nickname}</ErrorText>
                                     )}
-                                    <UserAuthForm name="email" type="email" handleChange={handleChange} handleBlur={handleBlur} value={values.email} placeholder="training@example.com">
+                                    <CustomForm name="email" type="email" handleChange={handleChange} handleBlur={handleBlur} value={values.email} placeholder="training@example.com">
                                         Eメール
-                                    </UserAuthForm>
+                                    </CustomForm>
                                     {touched.email && errors.email && (
                                         <ErrorText>{errors.email}</ErrorText>
                                     )}
-                                    <UserAuthForm name="password" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password} placeholder="">
+                                    <CustomForm name="password" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password} placeholder="">
                                         パスワード
-                                    </UserAuthForm>
+                                    </CustomForm>
                                     {touched.password && errors.password && (
                                         <ErrorText>{errors.password}</ErrorText>
                                     )}
                                     {!isLogin && (
-                                        <UserAuthForm name="password_confirmation" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password_confirmation} placeholder="">
+                                        <CustomForm name="password_confirmation" type="password" handleChange={handleChange} handleBlur={handleBlur} value={values.password_confirmation} placeholder="">
                                             パスワード
-                                        </UserAuthForm>
+                                        </CustomForm>
                                     )}
                                     <Box textAlign="center">
                                         <PrimaryButton

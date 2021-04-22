@@ -1,11 +1,10 @@
-import { VFC } from "react";
-import { ScheduleType } from "../../types/queriesType";
+import { memo, VFC } from "react";
+
+import { Maybe, ScheduleType } from "../../types/queriesType";
 import { Calendar } from "../organisms/calendar/Calendar";
 import { CalendarMenubar } from "../organisms/calendar/CalendarMenubar";
 import { OneTeamCalendarDetail } from "../organisms/calendar/OneTeamCalendarDetail";
 import { SectionCard } from "../organisms/layout/SectionCard";
-
-type Maybe<T> = T | null;
 
 type Props = {
     schedules: {
@@ -13,14 +12,14 @@ type Props = {
     } | undefined;
 }
 
-export const OneTeamCalendarSection: VFC<Props> = (props) => {
+export const OneTeamCalendarSection: VFC<Props> = memo((props) => {
     const { schedules } = props;
 
     return (
         <SectionCard>
             <OneTeamCalendarDetail schedules={schedules} />
             <CalendarMenubar />
-            <Calendar schedules={schedules} />
+            <Calendar schedules={schedules}  />
         </SectionCard>
     )
-}
+})

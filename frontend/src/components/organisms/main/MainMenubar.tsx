@@ -1,30 +1,29 @@
-import { Box, Flex, HStack } from "@chakra-ui/layout"
 import { useState, VFC } from "react"
-import { useSetRecoilState } from "recoil";
+import { Box, Flex } from "@chakra-ui/layout"
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import InsertInvitationIcon from '@material-ui/icons/InsertInvitation';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 import GroupIcon from '@material-ui/icons/Group';
+import { SlideFade } from "@chakra-ui/transition";
 
 import { MenuButton } from "../../molecules/MenuButton";
-import { SlideFade } from "@chakra-ui/transition";
-import { useSchedule } from "../../../hooks/useSchedule";
-import { useTraining } from "../../../hooks/useTraining";
-import { useTeam } from "../../../hooks/useTeam";
+import { useControllModal } from "../../../hooks/useControllModal";
 
 type Props = {
-    joinTeam: boolean;
+    isJoinTeam: boolean;
 }
 
 export const MainMenubar:VFC<Props> = (props) => {
-    const { joinTeam } = props;
+    const { isJoinTeam } = props;
 
     const [menubarOpen, setMenubarOpen] = useState(true)
 
-    const { onOpenTeamAuthModal } = useTeam()
-    const { onOpenScheduleCreateModal } = useSchedule()
-    const { onOpenTrainingCreateModal } = useTraining()
+   const {
+       onOpenTeamAuthModal,
+       onOpenTrainingCreateModal,
+       onOpenScheduleCreateModal
+   } = useControllModal()
 
     return (
         <>
@@ -39,7 +38,7 @@ export const MainMenubar:VFC<Props> = (props) => {
                 >
                     <Flex>
                         <Box>
-                        {joinTeam ? (
+                        {isJoinTeam ? (
                             <>
                                 <MenuButton title="トレーニング作成" onOpen={onOpenTrainingCreateModal}>
                                     <NoteAddIcon style={{ fontSize: 60 }} />

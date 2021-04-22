@@ -1,18 +1,15 @@
+import { useCallback } from "react";
 import moment from "moment";
-import { useState, VFC } from "react";
 import { useRecoilState } from "recoil";
-import { scheduleFirstDateState } from "../store/scheduleFirstDateState";
-import { scheduleOneDayState } from "../store/scheduleOneDayState";
-import { scheduleTodayDiffState } from "../store/scheduleTodayDiffState";
-import { ScheduleType } from "../types/queriesType";
 
+import { ScheduleType } from "../types/queriesType";
+import { calendarDateState } from "../store/calendarDateState";
+import { FIRSTDATE } from "../constants";
 
 export const useCalendar = () => {
-    const [firstDate, setFirstDate] = useRecoilState(scheduleFirstDateState)
-    const [oneDay, setOneDay] = useRecoilState(scheduleOneDayState)
-    const [todayDiff, setTodayDiff] = useRecoilState(scheduleTodayDiffState)
+    const [calendarDate, setCalendarDate] = useRecoilState(calendarDateState)
 
-    const scheduleContent = (sche: ScheduleType) => {
+    const scheduleContent = useCallback((sche: ScheduleType) => {
         let scheduleContent = sche.node.trainingSchedule.title
         if (sche.node.trainingSchedule.count !== null) {
             scheduleContent  +=`/ ${sche.node.trainingSchedule.count}回`
@@ -24,33 +21,34 @@ export const useCalendar = () => {
             scheduleContent += `/ ${sche.node.trainingSchedule.distance}km`
         }
         return scheduleContent
-    }
+    }, [])
         
-    const onClickLastWeek = () => {
-        setFirstDate(moment(firstDate).add(-1, "w"))
-        setTodayDiff(todayDiff - 1)
-    }
-    const onClickThisWeek = () => {
-        setFirstDate(moment().startOf("week"))
-        setTodayDiff(0)
-    }
-    const onClickNextWeek = () => {
-        setFirstDate(moment(firstDate).add(1, "w"))
-        setTodayDiff(todayDiff + 1)
-    }
-    const onChangeOneDaySchedules = (d: moment.Moment) => {
-        setOneDay(d.format("YYYY-MM-DD"))
-    }
+    const onClickLastWeek = useCallback(() => {
+        setCalendarDate({
+            ...calendarDate, 
+            firstDate: moment(calendarDate.firstDate).add(-1, "w"),
+            todayDiff: calendarDate.todayDiff - 1
+        })
+    }, [calendarDate])
+    const onClickThisWeek = useCallback(() => {
+        setCalendarDate({
+            ...calendarDate, 
+            firstDate: FIRSTDATE,
+            todayDiff: 0
+        })
+    }, [calendarDate])
+    const onClickNextWeek = useCallback(() => {
+        setCalendarDate({
+            ...calendarDate, 
+            firstDate: moment(calendarDate.firstDate).add(1, "w"),
+            todayDiff: calendarDate.todayDiff + 1
+        })
+    }, [calendarDate])
 
     return ({
-        firstDate,
-        oneDay,
-        setOneDay,
-        todayDiff,
         scheduleContent,
         onClickLastWeek,
         onClickThisWeek,
         onClickNextWeek,
-        onChangeOneDaySchedules,
     })
 }

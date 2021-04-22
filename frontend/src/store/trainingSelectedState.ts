@@ -6,6 +6,7 @@ type trainingSelectedStateStateType = {
     load: number | null;
     distance: number | null;
     description: string;
+    isModalOpen: boolean;
 }
 
 export const trainingSelectedState = atom<trainingSelectedStateStateType>({
@@ -15,6 +16,7 @@ export const trainingSelectedState = atom<trainingSelectedStateStateType>({
         count: null,
         load: null,
         distance: null,
-        description: ""
+        description: "",
+        isModalOpen: false
     }
 });

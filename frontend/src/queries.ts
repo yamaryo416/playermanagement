@@ -189,8 +189,6 @@ export const GET_MY_ALL_SCHEDULES = gql`
                         iconNumber
                     }
                     date
-                    finishedMember
-                    finishedCount
                 }
             }
         }
@@ -259,9 +257,9 @@ export const CREATE_TEAM = gql`
 export const CREATE_TRAINING = gql`
     mutation(
         $title: String!, 
-        $count: Int!,
-        $load: Int!,
-        $distance: Int!,
+        $count: Int,
+        $load: Int,
+        $distance: Int,
         $description: String!,
         $iconNumber: Int!,
     ){

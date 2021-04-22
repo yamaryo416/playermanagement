@@ -1,6 +1,7 @@
-import { Box, Flex, Text } from "@chakra-ui/layout";
-import { Td } from "@chakra-ui/table";
 import { VFC } from "react";
+import { Box, Flex, Text } from "@chakra-ui/layout";
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
+
 import { Maybe, TrainingType } from "../../types/queriesType";
 import { CustomTable } from "../atoms/table/CustomTable";
 import { CustomTbody } from "../atoms/tbody/CustomTbody";
@@ -12,9 +13,7 @@ import { CustomThead } from "../atoms/thead/CustomThead";
 import { SectionTitle } from "../atoms/title/SectionTitle";
 import { TrainingTr } from "../atoms/tr/TrainingTr";
 import { SectionCard } from "../organisms/layout/SectionCard";
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import { TrainingIcon } from "../molecules/TrainingIcon";
-
 
 type Props = {
     trainings: {

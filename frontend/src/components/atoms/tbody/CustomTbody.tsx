@@ -8,7 +8,11 @@ type Props = {
 export const CustomTbody: VFC<Props> = (props) => {
     const { children } = props
 
-    return <STbody>{children}</STbody>
+    return (
+        <>
+            <STbody>{children}</STbody>
+        </>
+    )
 }
 
 const STbody = styled.tbody`

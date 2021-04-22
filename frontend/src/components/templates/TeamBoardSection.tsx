@@ -1,8 +1,7 @@
-import { Box, Flex, Heading, Link, Text } from "@chakra-ui/layout"
-import { VFC } from "react"
-import { useTeam } from "../../hooks/useTeam"
-import { SectionTitle } from "../atoms/title/SectionTitle"
+import { memo, VFC } from "react"
+import { Box, Text } from "@chakra-ui/layout"
 
+import { SectionTitle } from "../atoms/title/SectionTitle"
 import { SectionCard } from "../organisms/layout/SectionCard"
 import { TeamBoardPost } from "../organisms/team/TeamBoardPost"
 
@@ -14,10 +13,8 @@ type Props = {
     isCoach: boolean | undefined;
 }
 
-export const TeamBoardSection: VFC<Props> = (props) => {
+export const TeamBoardSection: VFC<Props> = memo((props) => {
     const { myId, teamName, introduction, coachName, isCoach } = props;
-
-    const { text, onChangeText, createPost } = useTeam();
 
     return (
         <SectionCard>
@@ -33,5 +30,5 @@ export const TeamBoardSection: VFC<Props> = (props) => {
             {myId ? <TeamBoardPost myId={myId} /> : null }
         </SectionCard>
     )
-}
+})
 

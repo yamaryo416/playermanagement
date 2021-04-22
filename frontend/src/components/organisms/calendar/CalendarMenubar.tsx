@@ -1,19 +1,17 @@
+import { memo, VFC } from "react"
 import { Box, Flex, Heading, Link } from "@chakra-ui/layout"
 import moment from "moment"
-import { useState, VFC } from "react"
-import { useRecoilState, useSetRecoilState } from "recoil"
-import { STARTDATE, TODAY } from "../../../constants"
-import { useCalendar } from "../../../hooks/useCalendar"
-import { scheduleFirstDateState } from "../../../store/scheduleFirstDateState"
-import { SecondaryButton } from "../../atoms/button/SecondaryButton"
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
+import { useCalendar } from "../../../hooks/useCalendar"
+import { useRecoilValue } from "recoil";
+import { calendarDateState } from "../../../store/calendarDateState";
 
-export const CalendarMenubar: VFC = () => {
+export const CalendarMenubar: VFC = memo(() => {
+    const calendarDate = useRecoilValue(calendarDateState)
+
     const {
-        firstDate,
-        todayDiff,
         onClickLastWeek,
         onClickThisWeek,
         onClickNextWeek
@@ -26,10 +24,10 @@ export const CalendarMenubar: VFC = () => {
             </Box>
             <Box>
                 <Heading fontSize="20px">
-                    {moment(firstDate).get("M") + 1}月
-                    { todayDiff < 0 ? `(${Math.abs(todayDiff).toString()}週前)` : null }
-                    { todayDiff === 0 ? "(今週)" : null}
-                    { todayDiff > 0 ? `(${todayDiff.toString()}週後)` : null }
+                    {moment(calendarDate.firstDate).get("M") + 1}月
+                    { calendarDate.todayDiff < 0 ? `(${Math.abs(calendarDate.todayDiff).toString()}週前)` : null }
+                    { calendarDate.todayDiff === 0 ? "(今週)" : null}
+                    { calendarDate.todayDiff > 0 ? `(${calendarDate.todayDiff.toString()}週後)` : null }
                 </Heading>
             </Box>
             <Box>
@@ -42,4 +40,4 @@ export const CalendarMenubar: VFC = () => {
             </Box>
         </Flex>
     )
-}
+})

@@ -9,7 +9,10 @@ import { Select } from "@chakra-ui/select"
 import { ChangeEvent, memo, useEffect, VFC } from "react"
 import { useRecoilState } from "recoil"
 import { DAY_OF_WEEK } from "../../../constants"
-import { useSchedule } from "../../../hooks/useSchedule"
+import { useControllModal } from "../../../hooks/useControllModal"
+import { useCreateManySchedules } from "../../../hooks/queries/useCreateManySchedules"
+import { useCreateSingleSchedule } from "../../../hooks/queries/useCreateSingleSchedule"
+import { useScheduleState } from "../../../hooks/useScheduleState"
 import { GET_MY_TRAININGS } from "../../../queries"
 import { scheduleCreateModalState } from "../../../store/scheduleCreateModalState"
 import { MyTrainingsType } from "../../../types/queriesType"
@@ -20,24 +23,25 @@ type Props = {
 
 export const ScheduleCreateModal:VFC<Props> = memo((props) => {
     const { dataMyTrainings } = props
+
+    const { scheduleCreateModal ,onCloseScheduleCreateModal } = useControllModal()
+    const { createSingleSchedule } = useCreateSingleSchedule()
+    const { createManySchedules } = useCreateManySchedules()
     const { 
         isCreateSingleSchedule,
         trainingSchedule,
         date,
         startDate,
         endDate,
-        scheduleCreateModal,
+        dayOfWeek,
         onClickChangeMode,
         onChangeTrainingSchedule,
         onChangeDate,
         onChangeStartDate,
         onChangeEndDate,
         onChangeDayOfWeek,
-        onCloseScheduleCreateModal,
         includeWeekDays,
-        createSingleSchedule,
-        createManySchedules
-    } = useSchedule()
+    } = useScheduleState()
 
     const selectTraining = dataMyTrainings?.myTrainings.edges?.map((train) => (
         <option key={train.node.id} value={train.node.id}>
@@ -68,9 +72,9 @@ export const ScheduleCreateModal:VFC<Props> = memo((props) => {
                     <form onSubmit={(e) => {
                         e.preventDefault()
                         if (isCreateSingleSchedule) {
-                            createSingleSchedule()
+                            createSingleSchedule(trainingSchedule, date)
                         } else {
-                            createManySchedules()
+                            createManySchedules(trainingSchedule, startDate, endDate, dayOfWeek)
                         }     
                     }}>
                         <Stack spacing={4}>
